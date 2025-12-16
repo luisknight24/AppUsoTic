@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/credito_dto.dart';
 import '../../models/tienda_dto.dart';
 import '../../models/CreditoMostrarDTO.dart';
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () {
-              // Lógica de notificaciones futura
+              context.push('/notifications');
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Sin notificaciones nuevas')),
               );
@@ -112,11 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   return const Text('No se encontraron datos del usuario');
                 }
 
-
-
-
-
-
                 String saludo = 'Hola, usuario';
                 if (snapshot.hasData) {
                   saludo = 'Hola, ${snapshot.data!.nombreApellidos}';
@@ -130,10 +126,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-          
+
             // 1. Saludo
             //FadeInDown(
-              
+
              // child: Text(
                // 'Hola, $_nombreUsuario',
                 //style: theme.textTheme.headlineSmall?.copyWith(

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../../presentation/screens/notifications_screen.dart';
 import '../../presentation/screens/screens.dart'; // Crearemos este archivo barril abajo
 import '../../presentation/screens/client_data_screen.dart';
 import '../../presentation/screens/store_data_screen.dart';
@@ -45,6 +46,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/home',
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/verify-otp',
