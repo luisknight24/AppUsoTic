@@ -11,6 +11,7 @@ import '../../services/tiendaService.dart';
 import '../../models/tiendaMostrar_dto.dart';
 import '../../services/usuario_service.dart';
 import '../../models/ClienteMostrarDTO.dart';
+import 'new_credit_request_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -147,42 +148,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            // 2. Tarjeta Principal (Crédito)
-            FadeInLeft(
-              //child: CreditSummaryCard(credito: _creditoMock),
-              child: FutureBuilder<List<CreditoMostrarDTO>>(
-                future: _futureCreditos,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+// 2. Tarjeta Crédito + Lógica de Renovación
+             FutureBuilder<List<CreditoMostrarDTO>>(
+               future: _futureCreditos,
+               builder: (context, snapshot) {
+                 // --- LOADING ---
+                 if (snapshot.connectionState == ConnectionState.waiting) {
+                   return const Center(child: CircularProgressIndicator());
+                 }
 
-                  if (snapshot.hasError) {
-                    print("🔥 ERROR COMPLETO:");
-                    print(snapshot.error);
-                    print("🔥 STACKTRACE:");
-                    print(snapshot.stackTrace);
+                 // --- ERROR ---
+                 if (snapshot.hasError) {
+                   return Container(
+                     padding: const EdgeInsets.all(15),
+                     decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(10)),
+                     child: Text('Error al cargar créditos: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                   );
+                 }
 
-                    return Center(
-                      child: Text(
-                        'Error al cargar créditos:\n${snapshot.error}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    );
-                  }
+                 // --- SIN DATOS (No tiene crédito activo) ---
+                 // Si no tiene créditos, asumimos que puede pedir uno nuevo (ClienteId debería venir del usuario en este caso, pero por ahora lo manejamos así)
+                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                   return Center(
+                     child: Column(
+                       children: [
+                         const Text('No tienes créditos activos.'),
+                         const SizedBox(height: 10),
+                         ElevatedButton(
+                             onPressed: () {
+                               // Aquí deberíamos tener el ID del cliente guardado en sesión o preferencia
+                               // Por ahora pondremos 1 como ejemplo o lo sacamos del servicio de usuario
+                               context.push('/new-credit-request', extra: 1);
+                             },
+                             child: const Text("Solicitar mi primer crédito")
+                         )
+                       ],
+                     ),
+                   );
+                 }
 
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text('No hay créditos pendientes'),
-                    );
-                  }
+                 // --- CON DATOS ---
+                 final credito = snapshot.data!.first;
 
-                  final credito = snapshot.data!.first;
+                 // LÓGICA CORE: ¿Está pagado?
+                 // Usamos 0.01 para evitar problemas de punto flotante
+                 final bool estaPagado = (credito.montoPendiente <= 0.01);
 
-                  return CreditSummaryCard(credito: credito);
-                },
-              ),
-            ),
+                 return Column(
+                   children: [
+                     // A. Tarjeta de Resumen (Visualización)
+                     FadeInLeft(child: CreditSummaryCard(credito: credito)),
+
+                     const SizedBox(height: 20),
+
+                     // B. Tarjeta de Acción (Nuevo Crédito)
+                     FadeInLeft(
+                       delay: const Duration(milliseconds: 100),
+                       child: _NewCreditRequestCard(
+                         isPaid: estaPagado, // <--- Aquí pasamos la bandera
+                         onTap: () {
+                           // Navegamos pasando el ID del cliente para el nuevo DTO
+                           context.push('/new-credit-request', extra: credito.clienteId);
+                         },
+                       ),
+                     ),
+                   ],
+                 );
+               },
+             ),
 
             const SizedBox(height: 30),
 
@@ -355,6 +388,72 @@ class _QuickActionBtn extends StatelessWidget {
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NewCreditRequestCard extends StatelessWidget {
+  final bool isPaid;
+  final VoidCallback onTap;
+
+  const _NewCreditRequestCard({required this.isPaid, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final backgroundColor = isPaid ? theme.primaryColor : Colors.grey.shade300;
+    final textColor = isPaid ? Colors.white : Colors.grey.shade600;
+    final iconColor = isPaid ? Colors.white : Colors.grey.shade500;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isPaid ? onTap : null,
+        borderRadius: BorderRadius.circular(15),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: isPaid
+                ? [BoxShadow(color: theme.primaryColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))]
+                : null,
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(isPaid ? 0.2 : 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.add_card_rounded, color: iconColor, size: 28),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Solicitar Nuevo Crédito',
+                      style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isPaid
+                          ? '¡Estás listo para renovar tu equipo!'
+                          : 'Termina de pagar tu crédito actual para desbloquear.',
+                      style: TextStyle(color: textColor.withOpacity(isPaid ? 0.9 : 0.7), fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              if (isPaid) Icon(Icons.arrow_forward_ios, color: textColor, size: 18)
+              else Icon(Icons.lock_outline, color: iconColor, size: 20),
+            ],
+          ),
         ),
       ),
     );

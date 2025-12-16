@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../../presentation/screens/new_credit_request_screen.dart';
 import '../../presentation/screens/notifications_screen.dart';
 import '../../presentation/screens/screens.dart'; // Crearemos este archivo barril abajo
 import '../../presentation/screens/client_data_screen.dart';
@@ -50,6 +51,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (context, state) => const NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/new-credit-request',
+      builder: (context, state) {
+        final clienteId = state.extra as int;
+        return NewCreditRequestScreen(clienteId: clienteId);
+      },
     ),
     GoRoute(
       path: '/verify-otp',
