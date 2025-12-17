@@ -13,6 +13,8 @@ import '../../services/usuario_service.dart';
 import '../../models/ClienteMostrarDTO.dart';
 import 'new_credit_request_screen.dart';
 
+import '../../services/notificacion_service.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Luego esto vendrá de tu API con un FutureBuilder o Provider
   final creditoMostrarHome _creditoService = creditoMostrarHome();
   late Future<List<CreditoMostrarDTO>> _futureCreditos;
+   late Future<void> _futureCreditos1;
   final tiendaService _tiendaService = tiendaService();
   late Future<List<tiendaMostrar_dto>> _Tiendas;
   final UsuarioService _clienteService = UsuarioService();
@@ -43,9 +46,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _futureCreditos = _creditoService.getCreditos();
-    _Tiendas = _tiendaService.getTienda(); //
-    _futureClientes = _clienteService.getCliente();
+    
+    
+
+  _Tiendas = _tiendaService.getTienda();
+  _futureClientes = _clienteService.getCliente();
+
+  _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
+  _creditoService.connectSignalR();
+}
+
+Future<void> _initCreditoFlow() async {
+  await _creditoService.connectSignalR(); // ⏳ esperar conexión
+  //_futureCreditos = _creditoService.getCreditos();
+   _futureCreditos1 = _creditoService.getCreditos();
   }
 
   @override
@@ -60,11 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none),
-            onPressed: () {
-              context.push('/notifications');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sin notificaciones nuevas')),
-              );
+
+            onPressed: () async {
+              final notificaciones = await NotificacionService()
+                  .getNotificaciones();
+
+              
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sin notificaciones nuevas')),
+                );
+                context.push('/notifications');
+             
             },
           ),
         ],
@@ -95,13 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-           children: [
+          children: [
             FutureBuilder<ClienteMostrarDTO>(
               future: _futureClientes,
               builder: (context, snapshot) {
-
-
- // Verifica el estado de la conexión
+                // Verifica el estado de la conexión
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -121,8 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 return FadeInDown(
                   child: Text(
                     saludo,
-                    style: theme.textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 );
               },
@@ -131,12 +150,12 @@ class _HomeScreenState extends State<HomeScreen> {
             // 1. Saludo
             //FadeInDown(
 
-             // child: Text(
-               // 'Hola, $_nombreUsuario',
-                //style: theme.textTheme.headlineSmall?.copyWith(
-                  //fontWeight: FontWeight.bold,
-                //),
-             // ),
+            // child: Text(
+            // 'Hola, $_nombreUsuario',
+            //style: theme.textTheme.headlineSmall?.copyWith(
+            //fontWeight: FontWeight.bold,
+            //),
+            // ),
             //),
             const SizedBox(height: 5),
             FadeInDown(
@@ -148,74 +167,119 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-// 2. Tarjeta Crédito + Lógica de Renovación
-             FutureBuilder<List<CreditoMostrarDTO>>(
-               future: _futureCreditos,
-               builder: (context, snapshot) {
-                 // --- LOADING ---
-                 if (snapshot.connectionState == ConnectionState.waiting) {
-                   return const Center(child: CircularProgressIndicator());
-                 }
+            // 2. Tarjeta Crédito + Lógica de Renovación
+        /*    FutureBuilder<List<CreditoMostrarDTO>>(
+              future: _futureCreditos,
+              builder: (context, snapshot) {
+                // --- LOADING ---
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                 // --- ERROR ---
-                 if (snapshot.hasError) {
-                   return Container(
-                     padding: const EdgeInsets.all(15),
-                     decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(10)),
-                     child: Text('Error al cargar créditos: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-                   );
-                 }
+                // --- ERROR ---
+                if (snapshot.hasError) {
+                  return Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Error al cargar créditos: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-                 // --- SIN DATOS (No tiene crédito activo) ---
-                 // Si no tiene créditos, asumimos que puede pedir uno nuevo (ClienteId debería venir del usuario en este caso, pero por ahora lo manejamos así)
-                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                   return Center(
-                     child: Column(
-                       children: [
-                         const Text('No tienes créditos activos.'),
-                         const SizedBox(height: 10),
-                         ElevatedButton(
-                             onPressed: () {
-                               // Aquí deberíamos tener el ID del cliente guardado en sesión o preferencia
-                               // Por ahora pondremos 1 como ejemplo o lo sacamos del servicio de usuario
-                               context.push('/new-credit-request', extra: 1);
-                             },
-                             child: const Text("Solicitar mi primer crédito")
-                         )
-                       ],
-                     ),
-                   );
-                 }
+                // --- SIN DATOS (No tiene crédito activo) ---
+                // Si no tiene créditos, asumimos que puede pedir uno nuevo (ClienteId debería venir del usuario en este caso, pero por ahora lo manejamos así)
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        const Text('No tienes créditos activos.'),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Aquí deberíamos tener el ID del cliente guardado en sesión o preferencia
+                            // Por ahora pondremos 1 como ejemplo o lo sacamos del servicio de usuario
+                            context.push('/new-credit-request', extra: 1);
+                          },
+                          child: const Text("Solicitar mi primer crédito"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                 // --- CON DATOS ---
-                 final credito = snapshot.data!.first;
+                // --- CON DATOS ---
+                final credito = snapshot.data!.first;
 
-                 // LÓGICA CORE: ¿Está pagado?
-                 // Usamos 0.01 para evitar problemas de punto flotante
-                 final bool estaPagado = (credito.montoPendiente <= 0.01);
+                // LÓGICA CORE: ¿Está pagado?
+                // Usamos 0.01 para evitar problemas de punto flotante
+                final bool estaPagado = (credito.montoPendiente <= 0.01);
 
-                 return Column(
-                   children: [
-                     // A. Tarjeta de Resumen (Visualización)
-                     FadeInLeft(child: CreditSummaryCard(credito: credito)),
+                return Column(
+                  children: [
+                    // A. Tarjeta de Resumen (Visualización)
+                    FadeInLeft(child: CreditSummaryCard(credito: credito)),
 
-                     const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                     // B. Tarjeta de Acción (Nuevo Crédito)
-                     FadeInLeft(
-                       delay: const Duration(milliseconds: 100),
-                       child: _NewCreditRequestCard(
-                         isPaid: estaPagado, // <--- Aquí pasamos la bandera
-                         onTap: () {
-                           // Navegamos pasando el ID del cliente para el nuevo DTO
-                           context.push('/new-credit-request', extra: credito.clienteId);
-                         },
-                       ),
-                     ),
-                   ],
-                 );
-               },
-             ),
+                    // B. Tarjeta de Acción (Nuevo Crédito)
+                    FadeInLeft(
+                      delay: const Duration(milliseconds: 100),
+                      child: _NewCreditRequestCard(
+                        isPaid: estaPagado, // <--- Aquí pasamos la bandera
+                        onTap: () {
+                          // Navegamos pasando el ID del cliente para el nuevo DTO
+                          context.push(
+                            '/new-credit-request',
+                            extra: credito.clienteId,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+*/
+ValueListenableBuilder<List<CreditoMostrarDTO>?>(
+  valueListenable: _creditoService.creditosNotifier,
+  builder: (context, creditos, _) {
+    if (creditos == null) {
+      // Todavía no se cargaron los créditos
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (creditos.isEmpty) {
+      // Se cargaron y no hay créditos
+      return const Center(child: Text('No hay créditos'));
+    }
+
+    // Tomamos el primer crédito
+    final credito = creditos.first;
+    final bool estaPagado = credito.montoPendiente <= 0.01;
+
+    return Column(
+      children: [
+        CreditSummaryCard(credito: credito),
+        const SizedBox(height: 20),
+        _NewCreditRequestCard(
+          isPaid: estaPagado,
+          onTap: () {
+            context.push(
+              '/new-credit-request',
+              extra: credito.clienteId,
+            );
+          },
+        ),
+      ],
+    );
+  },
+),
+
 
             const SizedBox(height: 30),
 
@@ -418,7 +482,13 @@ class _NewCreditRequestCard extends StatelessWidget {
             color: backgroundColor,
             borderRadius: BorderRadius.circular(15),
             boxShadow: isPaid
-                ? [BoxShadow(color: theme.primaryColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))]
+                ? [
+                    BoxShadow(
+                      color: theme.primaryColor.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : null,
           ),
           child: Row(
@@ -438,20 +508,29 @@ class _NewCreditRequestCard extends StatelessWidget {
                   children: [
                     Text(
                       'Solicitar Nuevo Crédito',
-                      style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isPaid
                           ? '¡Estás listo para renovar tu equipo!'
                           : 'Termina de pagar tu crédito actual para desbloquear.',
-                      style: TextStyle(color: textColor.withOpacity(isPaid ? 0.9 : 0.7), fontSize: 12),
+                      style: TextStyle(
+                        color: textColor.withOpacity(isPaid ? 0.9 : 0.7),
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (isPaid) Icon(Icons.arrow_forward_ios, color: textColor, size: 18)
-              else Icon(Icons.lock_outline, color: iconColor, size: 20),
+              if (isPaid)
+                Icon(Icons.arrow_forward_ios, color: textColor, size: 18)
+              else
+                Icon(Icons.lock_outline, color: iconColor, size: 20),
             ],
           ),
         ),
