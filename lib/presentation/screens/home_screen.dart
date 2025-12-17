@@ -260,7 +260,8 @@ ValueListenableBuilder<List<CreditoMostrarDTO>?>(
 
     // Tomamos el primer crédito
     final credito = creditos.first;
-    final bool estaPagado = credito.montoPendiente <= 0.01;
+    //final bool estaPagado = credito.montoPendiente <= 0.01;
+    final bool estaPagado = true; // <--- MODO PRUEBA ACTIVADO
 
     return Column(
       children: [

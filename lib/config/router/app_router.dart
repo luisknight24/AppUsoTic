@@ -1,4 +1,7 @@
 import 'package:go_router/go_router.dart';
+import '../../presentation/screens/new_credit/client_update_screen.dart';
+import '../../presentation/screens/new_credit/new_credit_financial_screen.dart';
+import '../../presentation/screens/new_credit/new_credit_store_screen.dart';
 import '../../presentation/screens/new_credit_request_screen.dart';
 import '../../presentation/screens/notifications_screen.dart';
 import '../../presentation/screens/screens.dart'; // Crearemos este archivo barril abajo
@@ -52,11 +55,35 @@ final appRouter = GoRouter(
       path: '/notifications',
       builder: (context, state) => const NotificationsScreen(),
     ),
+//    GoRoute(
+//      path: '/new-credit-request',
+//      builder: (context, state) {
+//        final clienteId = state.extra as int;
+//        return NewCreditRequestScreen(clienteId: clienteId);
+//      },
+//    ),
     GoRoute(
-      path: '/new-credit-request',
+      path: '/new-credit-request', // Mantenemos el path que usabas en home
       builder: (context, state) {
         final clienteId = state.extra as int;
-        return NewCreditRequestScreen(clienteId: clienteId);
+        return ClientUpdateScreen(clienteId: clienteId);
+      },
+    ),
+    GoRoute(
+      path: '/new-credit-store',
+      builder: (context, state) {
+        final clienteId = state.extra as int;
+        return NewCreditStoreScreen(clienteId: clienteId);
+      },
+    ),
+    GoRoute(
+      path: '/new-credit-financial',
+      builder: (context, state) {
+        final Map<String, int> args = state.extra as Map<String, int>;
+        return NewCreditFinancialScreen(
+          clienteId: args['clienteId']!,
+          tiendaId: args['tiendaId']!,
+        );
       },
     ),
     GoRoute(

@@ -5,7 +5,7 @@ import 'package:trabajo1/models/notificacion_dto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class NotificacionService {
-  final String baseUrl = "http://192.168.100.13:7166/api";
+  final String baseUrl = "https://apicredito2-8.onrender.com/api";
  final storage = const FlutterSecureStorage();
   // 🟢 CACHÉ EN MEMORIA
   List<NotificacionDTO>? _cacheCreditos;

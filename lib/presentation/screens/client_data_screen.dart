@@ -60,31 +60,40 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
       return;
     }
 
-  // 3. Mostrar diálogo de carga
-  setState(() => _isUploading = true);
+    // 3. Mostrar diálogo de carga MEJORADO
+    setState(() => _isUploading = true);
 
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const PopScope(
-      canPop: false,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 15),
-            Text(
-              "Subiendo imágenes a la nube...",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)), // Bordes redondeados
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Se ajusta al contenido
+              children: [
+                CircularProgressIndicator(), // Usará el color primario de tu tema
+                SizedBox(height: 20),
+                Text(
+                  "Subiendo imágenes a la nube...",
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.none // Quita cualquier subrayado por seguridad
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  );
-
-
+    );
 
 try {
     final firebaseService = FirebaseService();
