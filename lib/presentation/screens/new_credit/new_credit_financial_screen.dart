@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 import '../../../models/credito_dto.dart';
+import '../../../services/creditoMostrarHome.dart';
 import '../../../presentation/widgets/custom_text_field.dart';
 
 class NewCreditFinancialScreen extends StatefulWidget {
-  final int clienteId;
-  final int tiendaId;
+  //final int clienteId;
+  //final int tiendaId;
 
-  const NewCreditFinancialScreen({super.key, required this.clienteId, required this.tiendaId});
+  const NewCreditFinancialScreen({super.key/*, required this.clienteId, required this.tiendaId*/});
 
   @override
   State<NewCreditFinancialScreen> createState() => _NewCreditFinancialScreenState();
@@ -20,7 +22,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   final _montoCtrl = TextEditingController();
   final _entradaCtrl = TextEditingController();
   final _plazoCtrl = TextEditingController();
-
+ DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
   bool _isLoading = false;
 
@@ -90,7 +92,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
 
       final credito = CreditoDTO(
         id: 0,
-        clienteId: widget.clienteId,
+       // clienteId: widget.clienteId,
         montoTotal: double.parse(_montoCtrl.text),
         entrada: _entradaCtrl.text.isEmpty ? 0.0 : double.parse(_entradaCtrl.text),
         plazoCuotas: int.parse(_plazoCtrl.text),
@@ -98,9 +100,14 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         valorPorCuota: _valorCuota,
         montoPendiente: _totalPagar,
         diaPago: DateTime.now(),
-        estado: "PENDIENTE",
+         proximaCuota: _proximaCuota,
+        proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
+        estado: "Pendiente",
+         fechaCreacion: DateTime.now().toUtc()
       );
+        final CreditoServicio = creditoMostrarHome();
 
+    await CreditoServicio.guardarCredito(credito);
       // LLAMADA AL BACKEND:
       // await creditoService.crearCredito(credito);
 

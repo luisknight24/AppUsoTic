@@ -248,20 +248,33 @@ Future<void> _initCreditoFlow() async {
 ValueListenableBuilder<List<CreditoMostrarDTO>?>(
   valueListenable: _creditoService.creditosNotifier,
   builder: (context, creditos, _) {
+    
+    // Cargando
     if (creditos == null) {
-      // Todavía no se cargaron los créditos
       return const Center(child: CircularProgressIndicator());
     }
 
+    // 🔥 CASO: NO TIENE CRÉDITOS → PUEDE SOLICITAR
     if (creditos.isEmpty) {
-      // Se cargaron y no hay créditos
-      return const Center(child: Text('No hay créditos'));
+        return Column(
+        children: [
+          const Text('No tienes créditos activos.'),
+          const SizedBox(height: 20),
+          _NewCreditRequestCard(
+            isPaid: true, // Si no hay créditos, se asume que puede solicitar
+            onTap: () {
+              context.push('/new-credit-request');
+            },
+          ),
+        ],
+      );
     }
 
-    // Tomamos el primer crédito
+
+    // 🔹 CASO: TIENE CRÉDITO
     final credito = creditos.first;
-    //final bool estaPagado = credito.montoPendiente <= 0.01;
-    final bool estaPagado = true; // <--- MODO PRUEBA ACTIVADO
+
+    final bool estaPagado = credito.montoPendiente <= 0;
 
     return Column(
       children: [
@@ -462,6 +475,7 @@ class _QuickActionBtn extends StatelessWidget {
 class _NewCreditRequestCard extends StatelessWidget {
   final bool isPaid;
   final VoidCallback onTap;
+
 
   const _NewCreditRequestCard({required this.isPaid, required this.onTap});
 

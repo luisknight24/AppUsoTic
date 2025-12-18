@@ -9,8 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 class creditoMostrarHome {
-  final String baseUrl = "https://apicredito2-8.onrender.com/api";
-  final String baseUrl1 = "https://apicredito2-8.onrender.com";
+  final String baseUrl = "http://192.168.100.13:7166/api";
+  final String baseUrl1 = "http://192.168.100.13:7166";
   final storage = const FlutterSecureStorage();
   // WebSocket
   late HubConnection _connection;
@@ -115,7 +115,7 @@ _connection.onreconnected((id) {
 
 */
 
-  Future<void> connectSignalR() async {
+  Future<void> connectSignalR1() async {
     debugPrint("🟡 Conectando SignalR...");
 
     final token = await storage.read(key: 'jwt_token');
@@ -163,6 +163,100 @@ _connection.onreconnected((id) {
       debugPrint("❌ Error SignalR: $e");
     }
   }
+
+
+Future<void> connectSignalR() async {
+  debugPrint("🟡 Iniciando conexión SignalR");
+
+  final token = await storage.read(key: 'jwt_token');
+
+  // 🔐 Verificar token
+  if (token == null || token.isEmpty) {
+    debugPrint("❌ TOKEN NULL O VACÍO");
+    return;
+  }
+  debugPrint("🔐 Token OK: ${token.substring(0, 15)}...");
+
+  final hubUrl = '$baseUrl1/adminhub';
+  debugPrint("🌐 URL SignalR: $hubUrl");
+
+  _connection = HubConnectionBuilder()
+      .withUrl(
+        hubUrl,
+        HttpConnectionOptions(
+          accessTokenFactory: () async {
+            debugPrint("🔁 SignalR solicitó token");
+            return token;
+          },
+        ),
+      )
+      .build();
+
+  // 📡 Evento crédito actualizado
+  _connection.on('CreditoActualizado', (args) {
+    debugPrint("📩 Evento CreditoActualizado recibido");
+    debugPrint("📦 Args: $args");
+
+    if (args == null || args.isEmpty) {
+      debugPrint("⚠️ Args vacíos");
+      return;
+    }
+
+    try {
+      final data = Map<String, dynamic>.from(args.first);
+      debugPrint("📄 Data parseada: $data");
+
+      final credito = CreditoMostrarDTO.fromJson(data);
+
+      final cache = _cacheCreditos ??= [];
+
+      final index = cache.indexWhere((c) => c.id == credito.id);
+      debugPrint("🔎 Índice encontrado: $index");
+
+      if (index >= 0) {
+        cache[index] = credito;
+        debugPrint("✏️ Crédito actualizado en caché");
+      } else {
+        cache.add(credito);
+        debugPrint("➕ Crédito agregado a caché");
+      }
+
+      creditosNotifier.value = List.unmodifiable(cache);
+      mensajeNotifier.value = "Crédito actualizado";
+
+      debugPrint("✅ Notificadores actualizados");
+    } catch (e, s) {
+      debugPrint("❌ Error procesando evento: $e");
+      debugPrint("📛 Stack: $s");
+    }
+  });
+
+  // 🔌 Ciclo de vida de conexión
+  _connection.onclose((e) {
+    debugPrint("⚡ SignalR cerrado");
+    debugPrint("📛 Error: $e");
+  });
+
+  _connection.onreconnecting((e) {
+    debugPrint("🔄 SignalR reconectando");
+    debugPrint("📛 Error: $e");
+  });
+
+  _connection.onreconnected((id) {
+    debugPrint("✅ SignalR reconectado - ConnectionId: $id");
+  });
+
+  try {
+    debugPrint("🚀 Intentando conectar SignalR...");
+    await _connection.start();
+    debugPrint("✅ SignalR CONECTADO CORRECTAMENTE");
+    debugPrint("🆔 ConnectionId: ${_connection.connectionId}");
+  } catch (e, s) {
+    debugPrint("❌ ERROR AL CONECTAR SIGNALR");
+    debugPrint("📛 Error: $e");
+    debugPrint("📛 Stack: $s");
+  }
+}
 
   /// 🔌 Desconectar
   Future<void> disconnectSignalR() async {
@@ -245,4 +339,42 @@ _connection.onreconnected((id) {
   void clearCache() {
     _cacheCreditos = null;
   }
+
+
+  
+Future<CreditoDTO> guardarCredito(CreditoDTO tienda) async {
+  final token = await storage.read(key: 'jwt_token');
+
+  if (token == null) {
+    throw Exception("Token no encontrado. Usuario no autenticado.");
+  }
+
+  final url = Uri.parse('$baseUrl/Credito/GuardarJWT');
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(tienda.toJson()),
+  );
+
+  print("Respuesta API Guardar Tienda: ${response.body}");
+
+  if (response.statusCode == 200) {
+    final decoded = jsonDecode(response.body);
+
+    if (decoded['status'] == true) {
+      // 🔄 Limpiamos caché para que al listar se refresque
+      clearCache();
+
+      return CreditoDTO.fromJson(decoded['value']);
+    } else {
+      throw Exception(decoded['msg']);
+    }
+  } else {
+    throw Exception("Error al guardar tienda: ${response.statusCode}");
+  }
+}
 }
