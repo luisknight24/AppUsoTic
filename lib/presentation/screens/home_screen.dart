@@ -11,6 +11,7 @@ import '../../services/tiendaService.dart';
 import '../../models/tiendaMostrar_dto.dart';
 import '../../services/usuario_service.dart';
 import '../../models/ClienteMostrarDTO.dart';
+import '../../services/location_service.dart';
 import 'new_credit_request_screen.dart';
 
 import '../../services/notificacion_service.dart';
@@ -32,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<tiendaMostrar_dto>> _Tiendas;
   final UsuarioService _clienteService = UsuarioService();
   late Future<ClienteMostrarDTO> _futureClientes;
+  final LocationService _locationService = LocationService();
 
   //final String _nombreUsuario = "aszcsz";
   final String _emailUsuario = "luis@ejemplo.com";
@@ -43,18 +45,41 @@ class _HomeScreenState extends State<HomeScreen> {
     direccion: "Av. Principal 123",
     //  fechaRegistro: DateTime.now(),
   );
+
+  // 🔴 VARIABLE NUEVA: Para guardar el número de notificaciones
+  int _cantidadNotificaciones = 0;
+
   @override
   void initState() {
     super.initState();
-    
-    
 
   _Tiendas = _tiendaService.getTienda();
   _futureClientes = _clienteService.getCliente();
 
   _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
   _creditoService.connectSignalR();
+
+    // 🔴 CARGAR NOTIFICACIONES AL INICIO
+    _cargarNotificaciones();
+
+    // 3. EJECUTAR RASTREO EN SEGUNDO PLANO (Sin await para no bloquear la UI)
+    _locationService.sendCurrentLocation();
 }
+
+// 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
+  Future<void> _cargarNotificaciones() async {
+    try {
+      final lista = await NotificacionService().getNotificaciones();
+      if (mounted) {
+        setState(() {
+          // Como el endpoint es 'pendientesNotApp', el total de la lista es el número a mostrar
+          _cantidadNotificaciones = lista.length;
+        });
+      }
+    } catch (e) {
+      print("Error cargando notificaciones badge: $e");
+    }
+  }
 
 Future<void> _initCreditoFlow() async {
   await _creditoService.connectSignalR(); // ⏳ esperar conexión
@@ -73,18 +98,23 @@ Future<void> _initCreditoFlow() async {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
-
+            icon: Badge(
+              // Solo mostramos el globito si hay notificaciones
+              isLabelVisible: _cantidadNotificaciones > 0,
+              // El número
+              label: Text('$_cantidadNotificaciones'),
+              // Color del globito (opcional, por defecto es rojo theme)
+              backgroundColor: Colors.red,
+              // El ícono de siempre
+              child: const Icon(Icons.notifications_none),
+            ),
             onPressed: () async {
-              final notificaciones = await NotificacionService()
-                  .getNotificaciones();
+              // Navegamos y esperamos a que el usuario vuelva
+              await context.push('/notifications');
 
-              
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sin notificaciones nuevas')),
-                );
-                context.push('/notifications');
-             
+              // Al volver, recargamos el contador (por si leyó alguna)
+              _cargarNotificaciones();
+
             },
           ),
         ],
