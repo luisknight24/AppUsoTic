@@ -38,7 +38,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
     );
       final tiendaServicio = tiendaService();
 
-    await tiendaServicio.GuardarTienda(tienda);
+   final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
     // 2. LLAMADA AL BACKEND (POST /Tienda)
     // int tiendaId = await tiendaService.crearTienda(tienda);
     await Future.delayed(const Duration(seconds: 1)); // Simulación
@@ -50,7 +50,9 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
       setState(() => _isLoading = false);
       // Avanzar al paso final: CRÉDITO + CALCULADORA
       // Pasamos clienteId y tiendaId (mapa de argumentos)
-      context.push('/new-credit-financial'/*, extra: {'clienteId': widget.clienteId, 'tiendaId': mockTiendaId}*/);
+      context.push('/new-credit-financial',
+       extra: tiendaCreada.id,
+      /*, extra: {'clienteId': widget.clienteId, 'tiendaId': mockTiendaId}*/);
     }
   }
 

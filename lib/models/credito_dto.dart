@@ -17,6 +17,7 @@ class CreditoDTO {
   String? proximaCuotaStr;
   String? estado;
   int clienteId;
+  int? tiendaId; 
   DateTime? fechaCreacion;
 
   CreditoDTO({
@@ -32,6 +33,7 @@ class CreditoDTO {
     this.proximaCuotaStr,
     this.estado,
     this.clienteId = 0,
+    this.tiendaId = 0,
     this.fechaCreacion,
   });
 
@@ -56,6 +58,7 @@ class CreditoDTO {
       proximaCuotaStr: json['ProximaCuotaStr'],
       estado: json['Estado'],
       clienteId: json['ClienteId'] ?? 0,
+      tiendaId: json['TiendaId'] ?? 0, // 
       fechaCreacion: parseDate(json['FechaCreacion']),
     );
   }
@@ -75,7 +78,7 @@ class CreditoDTO {
       'Estado': estado ?? '',
       'FechaCreacion': fechaCreacion?.toUtc().toIso8601String(),
       'ClienteId': clienteId,
-         
+      'TiendaId': tiendaId,
    
       };
 }

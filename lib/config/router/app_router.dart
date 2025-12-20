@@ -82,10 +82,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/new-credit-financial',
       builder: (context, state) {
+         final tiendaId = state.extra as int;
         //final Map<String, int> args = state.extra as Map<String, int>;
         return NewCreditFinancialScreen(
          // clienteId: args['clienteId']!,
-          //tiendaId: args['tiendaId']!,
+         // tiendaId: args['tiendaId']!,
+         tiendaId: tiendaId
         );
       },
     ),

@@ -13,7 +13,12 @@ import '../../services/ValidarCuenta.dart';
 import '../../services/usuario_service.dart';
 import 'dart:convert';
 class CreditDataScreen extends StatefulWidget {
-  const CreditDataScreen({super.key});
+
+  
+  const CreditDataScreen({super.key
+  
+
+  });
 
   @override
   State<CreditDataScreen> createState() => _CreditDataScreenState();
@@ -110,6 +115,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
     estado: 'Pendiente',
     fechaCreacion: DateTime.now().toUtc(),
+     
   );
 
   final registerProvider = context.read<RegisterProvider>();

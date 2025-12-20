@@ -5,18 +5,23 @@ import 'package:intl/intl.dart';
 import '../../../models/credito_dto.dart';
 import '../../../services/creditoMostrarHome.dart';
 import '../../../presentation/widgets/custom_text_field.dart';
+import '../../../models/CreditoMostrarDTO.dart';
 
 class NewCreditFinancialScreen extends StatefulWidget {
   //final int clienteId;
-  //final int tiendaId;
+  final int tiendaId;
 
-  const NewCreditFinancialScreen({super.key/*, required this.clienteId, required this.tiendaId*/});
+  const NewCreditFinancialScreen({super.key, required this.tiendaId,
+  /*, required this.clienteId, required this.tiendaId*/});
 
   @override
   State<NewCreditFinancialScreen> createState() => _NewCreditFinancialScreenState();
 }
 
 class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
+ 
+ final creditoMostrarHome creditoHomeService = creditoMostrarHome();
+
   final _formKey = GlobalKey<FormState>();
 
   final _montoCtrl = TextEditingController();
@@ -31,6 +36,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   double _totalPagar = 0.0;
 
   final List<String> _frecuencias = ['Semanal', 'Quincenal', 'Mensual'];
+//final creditoServicio = creditoMostrarHome();
+ //late final creditoMostrarHome creditoServicio;
 
   @override
   void initState() {
@@ -38,6 +45,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _montoCtrl.addListener(_calcularValores);
     _entradaCtrl.addListener(_calcularValores);
     _plazoCtrl.addListener(_calcularValores);
+    
+     debugPrint("🟠 [NEW CREDIT] usando instancia → hash: ${creditoHomeService.hashCode}");
   }
 
   @override
@@ -103,14 +112,28 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
          proximaCuota: _proximaCuota,
         proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
         estado: "Pendiente",
+        tiendaId: widget.tiendaId,
          fechaCreacion: DateTime.now().toUtc()
       );
-        final CreditoServicio = creditoMostrarHome();
+        //final CreditoServicio = creditoMostrarHome();
 
-    await CreditoServicio.guardarCredito(credito);
+   final response=await creditoHomeService.guardarCredito(credito);
+
+      debugPrint("✅ [NEW CREDIT] Crédito creado en backend:");
+    debugPrint("id: ${response.id}");
+    debugPrint("montoPendiente: ${response.montoPendiente}");
+    debugPrint("estado: ${response.estado}");
+    debugPrint("proximaCuotaStr: ${response.proximaCuotaStr}");
+    
+   
       // LLAMADA AL BACKEND:
-      // await creditoService.crearCredito(credito);
 
+  // 2️⃣ Refrescar la lista completa desde backend
+  await creditoHomeService.getCreditos(forceRefresh: true);
+  debugPrint("🟠 [NEW CREDIT] notifier → ${creditoHomeService.creditosNotifier.value?.length}");
+ 
+     debugPrint("🔄 ValueNotifier después de actualizar:");
+    debugPrint(creditoHomeService.creditosNotifier.value.toString());
       await Future.delayed(const Duration(seconds: 2)); // Simulación
 
       if (mounted) {
@@ -141,7 +164,13 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(c);
-              context.go('/home'); // Volver al inicio
+  //            context.go('/home');
+              context.go('/home', extra: true);
+                      // cerrar diálogo
+ // context.go('/home', extra: true);
+  debugPrint("✅ [NEW CREDIT] Crédito creado, haciendo pop()");
+//context.pop(true);
+  // context.pop(true);      // Volver al inicio
             },
             child: const Text('FINALIZAR'),
           )

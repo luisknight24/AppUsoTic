@@ -123,9 +123,5 @@ Future<tiendaMostrar_dto> GuardarTienda(TiendaCrearDTO tienda) async {
     throw Exception("Error al guardar tienda: ${response.statusCode}");
   }
 }
-
-
-
-
-  
+ 
 }

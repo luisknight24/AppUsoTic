@@ -67,7 +67,9 @@ print("Correo desde Provider: ${registerProvider.usuario.correo}");
 print("Tienda nombre: ${registerProvider.tienda!.direccion}");
 print("Tienda nombre: ${registerProvider.tienda!.fechaRegistro}");
   //  context.read<RegisterProvider>().setTienda(tienda);
-    context.push('/credit-data');
+    context.push('/credit-data'
+    
+    );
   }
 
   @override

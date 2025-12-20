@@ -13,18 +13,29 @@ class CreditSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('dd/MM/yyyy');
-    final double totalCredito =
+final double totalCredito =
     credito.plazoCuotas * credito.valorPorCuota;
 
 final double montoPagado =
     totalCredito - credito.montoPendiente;
 
-final int cuotasPagadas =
-    (montoPagado / credito.valorPorCuota).floor();
+// 🔒 PROTEGER división
+int cuotasPagadas = 0;
+if (credito.valorPorCuota > 0) {
+  cuotasPagadas = (montoPagado / credito.valorPorCuota).floor();
+}
 
-double progreso = cuotasPagadas / credito.plazoCuotas;
+// 🔒 PROTEGER progreso
 
-progreso = progreso.clamp(0.0, 1.0);
+
+   // 🔹 Barra proporcional al monto pagado, incluso si es parcial
+    double progreso = (totalCredito > 0) ? (montoPagado / totalCredito) : 0.0;
+    progreso = progreso.clamp(0.0, 1.0);
+
+
+progreso = progreso.isFinite
+    ? progreso.clamp(0.0, 1.0)
+    : 0.0;
 
     final proximaCuotaStr = credito.proximaCuotaStr ?? "No definido";
         //? dateFormat.format(credito.proximaCuotaStr!)

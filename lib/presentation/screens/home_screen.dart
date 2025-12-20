@@ -27,12 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // Luego esto vendrá de tu API con un FutureBuilder o Provider
   final creditoMostrarHome _creditoService = creditoMostrarHome();
   late Future<List<CreditoMostrarDTO>> _futureCreditos;
-   late Future<void> _futureCreditos1;
+  late Future<void> _futureCreditos1;
   final tiendaService _tiendaService = tiendaService();
   late Future<List<tiendaMostrar_dto>> _Tiendas;
   final UsuarioService _clienteService = UsuarioService();
   late Future<ClienteMostrarDTO> _futureClientes;
-
+  CreditoMostrarDTO? creditoActual;
   //final String _nombreUsuario = "aszcsz";
   final String _emailUsuario = "luis@ejemplo.com";
 
@@ -43,25 +43,38 @@ class _HomeScreenState extends State<HomeScreen> {
     direccion: "Av. Principal 123",
     //  fechaRegistro: DateTime.now(),
   );
+ // final creditoServicio = creditoMostrarHome();
   @override
   void initState() {
     super.initState();
-    
-    
+    debugPrint("🔵 [HOME] usando instancia → hash: ${_creditoService.hashCode}");
 
-  _Tiendas = _tiendaService.getTienda();
-  _futureClientes = _clienteService.getCliente();
+    _Tiendas = _tiendaService.getTienda();
+    _futureClientes = _clienteService.getCliente();
 
-  _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
-  _creditoService.connectSignalR();
-}
+      debugPrint("🏠 [HOME] carga inicial créditos");
+    _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
+    _creditoService.connectSignalR();
 
-Future<void> _initCreditoFlow() async {
-  await _creditoService.connectSignalR(); // ⏳ esperar conexión
-  //_futureCreditos = _creditoService.getCreditos();
-   _futureCreditos1 = _creditoService.getCreditos();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+    final state = GoRouterState.of(context);
+     debugPrint("🏠 [HOME] extra recibido: ${state.extra}");
+    if (state.extra == true) {
+        debugPrint("🏠 [HOME] FORZANDO REFRESH DE CRÉDITOS");
+      _creditoService.cargarCreditos();
+    }
+  });
   }
 
+  Future<void> _initCreditoFlow() async {
+    await _creditoService.connectSignalR(); // ⏳ esperar conexión
+    //_futureCreditos = _creditoService.getCreditos();
+    _futureCreditos1 = _creditoService.getCreditos();
+  }
+Future<void> _refreshCreditos() async {
+  _futureCreditos1 = _creditoService.getCreditos();
+  await _futureCreditos1;
+}
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -79,12 +92,10 @@ Future<void> _initCreditoFlow() async {
               final notificaciones = await NotificacionService()
                   .getNotificaciones();
 
-              
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sin notificaciones nuevas')),
-                );
-                context.push('/notifications');
-             
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Sin notificaciones nuevas')),
+              );
+              context.push('/notifications');
             },
           ),
         ],
@@ -147,16 +158,7 @@ Future<void> _initCreditoFlow() async {
               },
             ),
 
-            // 1. Saludo
-            //FadeInDown(
-
-            // child: Text(
-            // 'Hola, $_nombreUsuario',
-            //style: theme.textTheme.headlineSmall?.copyWith(
-            //fontWeight: FontWeight.bold,
-            //),
-            // ),
-            //),
+         
             const SizedBox(height: 5),
             FadeInDown(
               child: Text(
@@ -167,133 +169,57 @@ Future<void> _initCreditoFlow() async {
 
             const SizedBox(height: 20),
 
-            // 2. Tarjeta Crédito + Lógica de Renovación
-        /*    FutureBuilder<List<CreditoMostrarDTO>>(
-              future: _futureCreditos,
-              builder: (context, snapshot) {
-                // --- LOADING ---
-                if (snapshot.connectionState == ConnectionState.waiting) {
+
+            ValueListenableBuilder<List<CreditoMostrarDTO>?>(
+              valueListenable: _creditoService.creditosNotifier,
+              builder: (context, creditos, _) {
+                // Cargando
+                if (creditos == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // --- ERROR ---
-                if (snapshot.hasError) {
-                  return Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'Error al cargar créditos: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
+                // 🔥 CASO: NO TIENE CRÉDITOS → PUEDE SOLICITAR
+                if (creditos.isEmpty) {
+                  return Column(
+                    children: [
+                      const Text('No tienes créditos activos.'),
+                      const SizedBox(height: 20),
+                      _NewCreditRequestCard(
+                        isPaid:
+                            true, // Si no hay créditos, se asume que puede solicitar
+                        onTap: () async {
+                          context.push('/new-credit-request');
+                          // await _refreshCreditos();
+                        },
+                      ),
+                    ],
                   );
                 }
 
-                // --- SIN DATOS (No tiene crédito activo) ---
-                // Si no tiene créditos, asumimos que puede pedir uno nuevo (ClienteId debería venir del usuario en este caso, pero por ahora lo manejamos así)
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Column(
-                      children: [
-                        const Text('No tienes créditos activos.'),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Aquí deberíamos tener el ID del cliente guardado en sesión o preferencia
-                            // Por ahora pondremos 1 como ejemplo o lo sacamos del servicio de usuario
-                            context.push('/new-credit-request', extra: 1);
-                          },
-                          child: const Text("Solicitar mi primer crédito"),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                // 🔹 CASO: TIENE CRÉDITO
+                final credito = creditos.first;
 
-                // --- CON DATOS ---
-                final credito = snapshot.data!.first;
-
-                // LÓGICA CORE: ¿Está pagado?
-                // Usamos 0.01 para evitar problemas de punto flotante
-                final bool estaPagado = (credito.montoPendiente <= 0.01);
+                final bool estaPagado = credito.montoPendiente <= 0;
 
                 return Column(
                   children: [
-                    // A. Tarjeta de Resumen (Visualización)
-                    FadeInLeft(child: CreditSummaryCard(credito: credito)),
-
+                    CreditSummaryCard(credito: credito),
                     const SizedBox(height: 20),
+                    _NewCreditRequestCard(
+                      isPaid: estaPagado,
 
-                    // B. Tarjeta de Acción (Nuevo Crédito)
-                    FadeInLeft(
-                      delay: const Duration(milliseconds: 100),
-                      child: _NewCreditRequestCard(
-                        isPaid: estaPagado, // <--- Aquí pasamos la bandera
-                        onTap: () {
-                          // Navegamos pasando el ID del cliente para el nuevo DTO
-                          context.push(
-                            '/new-credit-request',
-                            extra: credito.clienteId,
-                          );
-                        },
-                      ),
+                      onTap: () async {
+                       //  context.push('/new-credit-request');
+                          await context.push('/new-credit-request');
+  await _refreshCreditos();
+                      },
+
+                   
                     ),
                   ],
                 );
               },
             ),
-*/
-ValueListenableBuilder<List<CreditoMostrarDTO>?>(
-  valueListenable: _creditoService.creditosNotifier,
-  builder: (context, creditos, _) {
-    
-    // Cargando
-    if (creditos == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    // 🔥 CASO: NO TIENE CRÉDITOS → PUEDE SOLICITAR
-    if (creditos.isEmpty) {
-        return Column(
-        children: [
-          const Text('No tienes créditos activos.'),
-          const SizedBox(height: 20),
-          _NewCreditRequestCard(
-            isPaid: true, // Si no hay créditos, se asume que puede solicitar
-            onTap: () {
-              context.push('/new-credit-request');
-            },
-          ),
-        ],
-      );
-    }
-
-
-    // 🔹 CASO: TIENE CRÉDITO
-    final credito = creditos.first;
-
-    final bool estaPagado = credito.montoPendiente <= 0;
-
-    return Column(
-      children: [
-        CreditSummaryCard(credito: credito),
-        const SizedBox(height: 20),
-        _NewCreditRequestCard(
-          isPaid: estaPagado,
-          onTap: () {
-            context.push(
-              '/new-credit-request',
-              extra: credito.clienteId,
-            );
-          },
-        ),
-      ],
-    );
-  },
-),
-
 
             const SizedBox(height: 30),
 
@@ -332,7 +258,7 @@ ValueListenableBuilder<List<CreditoMostrarDTO>?>(
                     return const Text('No hay tienda registrada');
                   }
 
-                  final tienda = snapshot.data!.first;
+                  final tienda = snapshot.data!.last;
 
                   return Container(
                     padding: const EdgeInsets.all(15),
@@ -395,33 +321,34 @@ ValueListenableBuilder<List<CreditoMostrarDTO>?>(
 
             const SizedBox(height: 30),
 
-            // 4. Accesos Rápidos (Opcional pero útil)
-            FadeInUp(
-              delay: const Duration(milliseconds: 300),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _QuickActionBtn(
-                    icon: Icons.receipt_long,
-                    label: 'Historial',
-                    color: Colors.blue,
-                    onTap: () {},
-                  ),
-                  _QuickActionBtn(
-                    icon: Icons.support_agent,
-                    label: 'Soporte',
-                    color: Colors.purple,
-                    onTap: () {},
-                  ),
-                  _QuickActionBtn(
-                    icon: Icons.qr_code,
-                    label: 'Mi QR',
-                    color: Colors.teal,
-                    onTap: () {},
-                  ),
-                ],
+
+              // 4. Accesos Rápidos (Opcional pero útil)
+              FadeInUp(
+                delay: const Duration(milliseconds: 300),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _QuickActionBtn(
+                      icon: Icons.receipt_long,
+                      label: 'Historial',
+                      color: Colors.blue,
+                      onTap: () {},
+                    ),
+                    _QuickActionBtn(
+                      icon: Icons.support_agent,
+                      label: 'Soporte',
+                      color: Colors.purple,
+                      onTap: () {},
+                    ),
+                    _QuickActionBtn(
+                      icon: Icons.qr_code,
+                      label: 'Mi QR',
+                      color: Colors.teal,
+                      onTap: () {},
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -475,7 +402,6 @@ class _QuickActionBtn extends StatelessWidget {
 class _NewCreditRequestCard extends StatelessWidget {
   final bool isPaid;
   final VoidCallback onTap;
-
 
   const _NewCreditRequestCard({required this.isPaid, required this.onTap});
 
