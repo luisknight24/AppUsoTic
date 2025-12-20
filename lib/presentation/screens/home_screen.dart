@@ -33,12 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<tiendaMostrar_dto>> _Tiendas;
   final UsuarioService _clienteService = UsuarioService();
   late Future<ClienteMostrarDTO> _futureClientes;
-<<<<<<< HEAD
   CreditoMostrarDTO? creditoActual;
-=======
   final LocationService _locationService = LocationService();
 
->>>>>>> deb840174be8b2e807d07734e4a6b17970aa0729
   //final String _nombreUsuario = "aszcsz";
   final String _emailUsuario = "luis@ejemplo.com";
 

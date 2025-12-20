@@ -202,7 +202,7 @@ Future<bool> actualizarDetalleClienteFotos(
     throw Exception("Token no encontrado. Usuario no autenticado.");
   }
 
-  final url = Uri.parse('$baseUrl1/DetalleCliente/EditarFotosJWT');
+  final url = Uri.parse('$baseUrl/DetalleCliente/EditarFotosJWT');
 
   final response = await http.put(
     url,

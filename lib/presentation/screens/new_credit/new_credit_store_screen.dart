@@ -7,8 +7,9 @@ import '../../../services/tiendaService.dart';
 
 
 class NewCreditStoreScreen extends StatefulWidget {
+   //final int tiendaId;
   //final int clienteId;
-  const NewCreditStoreScreen({super.key, /*required this.clienteId*/});
+  const NewCreditStoreScreen({super.key,/* required this.tiendaId*/});
 
   @override
   State<NewCreditStoreScreen> createState() => _NewCreditStoreScreenState();
@@ -35,6 +36,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
       nombreEncargado: _encargadoCtrl.text,
       telefono: _telefonoTiendaCtrl.text,
       direccion: _direccionTiendaCtrl.text,
+      
     );
       final tiendaServicio = tiendaService();
 

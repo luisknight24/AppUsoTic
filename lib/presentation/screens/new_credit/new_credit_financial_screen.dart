@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
@@ -6,6 +7,8 @@ import '../../../models/credito_dto.dart';
 import '../../../services/creditoMostrarHome.dart';
 import '../../../presentation/widgets/custom_text_field.dart';
 import '../../../models/CreditoMostrarDTO.dart';
+import '../../../presentation/widgets/photo_upload_card.dart'; // Importar
+import '../../../services/firebase_service.dart'; // Importar
 
 class NewCreditFinancialScreen extends StatefulWidget {
   //final int clienteId;
@@ -29,6 +32,11 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   final _plazoCtrl = TextEditingController();
  DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
+
+  // VARIABLES DE EVIDENCIA (Contrato y Celular)
+  File? _fotoContrato;
+  File? _fotoCelular;
+
   bool _isLoading = false;
 
   // Variables calculadas
@@ -93,12 +101,44 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       return;
     }
 
+    // VALIDACIÓN DE EVIDENCIAS (NUEVO)
+    if (_fotoContrato == null || _fotoCelular == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Debes subir fotos de Contrato y Celular'), backgroundColor: Colors.red)
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    try {
-      // NOTA: Las fotos ya se subieron en el Paso 1 (PUT Cliente).
-      // Aquí solo enviamos la solicitud financiera (POST Crédito).
+    // Dialogo de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: const Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 20), Text("Subiendo evidencias...", style: TextStyle(fontWeight: FontWeight.bold))]),
+        ),
+      ),
+    );
 
+    try {
+      final firebaseService = FirebaseService();
+
+      // 1. SUBIR EVIDENCIAS
+       String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos_nuevos');
+      String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares_nuevos');
+
+      // Simulación
+      await Future.delayed(const Duration(seconds: 2));
+     
+
+      if (mounted) Navigator.pop(context); // Cierra loading fotos
+
+      // 2. CREAR DTO
       final credito = CreditoDTO(
         id: 0,
        // clienteId: widget.clienteId,
@@ -113,7 +153,11 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
         estado: "Pendiente",
         tiendaId: widget.tiendaId,
-         fechaCreacion: DateTime.now().toUtc()
+         fechaCreacion: DateTime.now().toUtc(),
+        
+        // Nuevos campos
+        fotoContratoUrl: urlContrato,
+        fotoCelularUrl: urlCelular,
       );
         //final CreditoServicio = creditoMostrarHome();
 
@@ -142,6 +186,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       }
 
     } catch (e) {
+      if (mounted) Navigator.pop(context);
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al enviar solicitud')));
     }
@@ -267,6 +312,21 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                       },
                     ),
                   ),
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              // --- SECCIÓN EVIDENCIAS (NUEVO) ---
+              const Divider(),
+              const Text("EVIDENCIA DIGITAL", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+              const SizedBox(height: 15),
+
+              Row(
+                children: [
+                  Expanded(child: PhotoUploadCard(label: 'Contrato Nuevo *', onImageSelected: (f) => _fotoContrato = f)),
+                  const SizedBox(width: 10),
+                  Expanded(child: PhotoUploadCard(label: 'Celular Nuevo *', onImageSelected: (f) => _fotoCelular = f)),
                 ],
               ),
 

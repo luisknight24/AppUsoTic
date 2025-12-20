@@ -28,20 +28,16 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
 
-  // Archivos de Fotos
+  // SOLO FOTO CLIENTE
   File? _fotoCliente;
-  File? _fotoCelular;
-  File? _fotoContrato;
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Pre-llenamos con datos del usuario actual (si están disponibles en el provider)
     final user = context.read<RegisterProvider>().usuario;
     _nombreCtrl.text = user.nombreApellidos ?? '';
-    // _cedulaCtrl.text = ...
   }
 
   @override
@@ -56,10 +52,10 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
   void _actualizarDatos() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validación de fotos obligatorias para la renovación
-    if (_fotoCliente == null || _fotoCelular == null || _fotoContrato == null) {
+    // VALIDACIÓN SOLO FOTO CLIENTE
+    if (_fotoCliente == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Debes actualizar las 3 fotos: Cliente, Celular y Contrato'),
+          content: Text('Debes subir tu Foto (Selfie) actualizada'),
           backgroundColor: Colors.orange
       ));
       return;
@@ -81,7 +77,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 20),
-              Text("Subiendo evidencias...", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Actualizando foto de perfil...", style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -94,8 +90,8 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
       // 1. SUBIR FOTOS (Simulado o Real)
       // Descomenta las líneas reales cuando tengas el bucket listo
        String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes');
-      String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares');
-      String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos');
+      //String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares');
+      //String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos');
 
       // Simulación de delay
       await Future.delayed(const Duration(seconds: 2));
@@ -105,14 +101,23 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
       if (mounted) Navigator.pop(context); // Cerrar diálogo
 
       // 2. CREAR DTO DETALLE CLIENTE
+     
+      // 1. SUBIR SOLO FOTO CLIENTE
+      // String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes');
+
+      // Simulación de delay
+      await Future.delayed(const Duration(seconds: 2));
+     
+
+     // if (mounted) Navigator.pop(context); // Cerrar diálogo
+
+      // 2. CREAR DTO DETALLE CLIENTE LIMPIO
       final detalleUpdate = DetalleClientePostDTO(
         numeroCedula: _cedulaCtrl.text,
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
         fotoClienteUrl: urlCliente,
-        fotoCelularEntregadoUrl: urlCelular,
-        fotoContrato: urlContrato,
       );
       final usuarioService = UsuarioService();
 
@@ -124,6 +129,8 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
         setState(() => _isLoading = false);
         // Avanzamos al Paso 2: Datos de Tienda
         context.push('/new-credit-store', /*extra: widget.clienteId*/);
+        // Avanzamos al Paso 2
+      //  context.push('/new-credit-store', extra: widget.clienteId);
       }
 
     } catch (e) {
@@ -156,19 +163,16 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
               CustomTextField(label: 'Dirección', controller: _direccionCtrl, icon: Icons.location_on),
 
               const SizedBox(height: 30),
-              FadeInDown(child: const Text('Evidencia Digital', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey))),
+              FadeInDown(child: const Text('Evidencia de Identidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey))),
               const SizedBox(height: 15),
 
-              // --- SECCIÓN FOTOS (Movida aquí) ---
-              Row(
-                children: [
-                  Expanded(child: PhotoUploadCard(label: 'Foto Cliente (Selfie)', onImageSelected: (f) => _fotoCliente = f)),
-                  const SizedBox(width: 15),
-                  Expanded(child: PhotoUploadCard(label: 'Foto Celular', onImageSelected: (f) => _fotoCelular = f)),
-                ],
+              // --- SOLO FOTO CLIENTE ---
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: PhotoUploadCard(label: 'Foto Cliente (Selfie) *', onImageSelected: (f) => _fotoCliente = f),
+                ),
               ),
-              const SizedBox(height: 15),
-              PhotoUploadCard(label: 'Foto Contrato', onImageSelected: (f) => _fotoContrato = f),
 
               const SizedBox(height: 40),
               SizedBox(
