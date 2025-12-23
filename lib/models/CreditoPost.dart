@@ -16,7 +16,7 @@ class CreditoDTO {
   DateTime? proximaCuota;
   String? proximaCuotaStr;
   String? estado;
-  //int clienteId;
+ 
   DateTime? fechaCreacion;
 
   CreditoDTO({
@@ -31,7 +31,7 @@ class CreditoDTO {
     this.proximaCuota,
     this.proximaCuotaStr,
     this.estado,
-    //this.clienteId = 0,
+  
     this.fechaCreacion,
   });
 

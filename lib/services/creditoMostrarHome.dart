@@ -9,8 +9,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 class creditoMostrarHome {
-  final String baseUrl = "http://192.168.100.13:7166/api";
-  final String baseUrl1 = "http://192.168.100.13:7166";
+
+   final String baseUrl = "https://apicredito2-8.onrender.com/api";
+  final String baseUrl3 = "http://192.168.100.13:7166/api";
+  final String baseUrl12 = "http://192.168.100.13:7166";
+  final String baseUrl1 = "https://apicredito2-8.onrender.com";
   final storage = const FlutterSecureStorage();
   // WebSocket
   late HubConnection _connection;
@@ -376,7 +379,27 @@ _cacheCreditos![index] = nuevo;
   creditosNotifier.value = List.from(_cacheCreditos!);
    debugPrint("✅ Crédito actualizado | id: ${nuevo.id} | montoPendiente: ${nuevo.montoPendiente} | proximaCuotaStr: ${_cacheCreditos![index].proximaCuotaStr}");
 }
+/// 🧹 LIMPIAR ESTADO AL CAMBIAR DE USUARIO
+Future<void> limpiar() async {
+  debugPrint("🧹 [creditoMostrarHome] limpiando estado");
 
+  // 1️⃣ Detener SignalR
+  try {
+    if (_connection.state == HubConnectionState.connected) {
+      await _connection.stop();
+      debugPrint("🔌 SignalR detenido");
+    }
+  } catch (_) {}
+
+  // 2️⃣ Limpiar cache
+  _cacheCreditos = null;
+
+  // 3️⃣ Limpiar notifiers
+  creditosNotifier.value = null;
+  mensajeNotifier.value = "";
+  cargandoNotifier.value = false;
+  isLoadingNotifier.value = false;
+}
 
 // ✅ INSTANCIA GLOBAL ÚNICA
 //final creditoMostrarHome creditoHomeService = creditoMostrarHome();

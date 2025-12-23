@@ -64,7 +64,9 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _plazoCtrl.dispose();
     super.dispose();
   }
-
+ // NUEVO: Variable para el combo de cuotas
+  int? _plazoSeleccionado;
+  final List<int> _opcionesCuotas = [3, 6, 9, 12, 15, 18, 24];
   // --- LÓGICA DE CALCULADORA ---
   void _calcularValores() {
     double monto = double.tryParse(_montoCtrl.text) ?? 0.0;
@@ -144,7 +146,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
        // clienteId: widget.clienteId,
         montoTotal: double.parse(_montoCtrl.text),
         entrada: _entradaCtrl.text.isEmpty ? 0.0 : double.parse(_entradaCtrl.text),
-        plazoCuotas: int.parse(_plazoCtrl.text),
+        plazoCuotas: int.parse(_plazoCtrl.text),//int.parse(_plazoCtrl.text) _plazoSeleccionado!,
         frecuenciaPago: _frecuenciaSeleccionada!,
         valorPorCuota: _valorCuota,
         montoPendiente: _totalPagar,
@@ -299,6 +301,10 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                       icon: Icons.calendar_today,
                       validator: (v) => v!.isEmpty ? 'Requerido' : null,
                     ),
+
+// 4. CAMBIO: DROPDOWN DE CUOTAS
+                  
+
                   ),
                   const SizedBox(width: 15),
                   Expanded(

@@ -52,6 +52,11 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _cuotasCtrl.addListener(_calcularValores);
   }
 
+    // NUEVO: Variable para el combo de cuotas
+  int? _plazoSeleccionado;
+  final List<int> _opcionesCuotas = [3, 6, 9, 12, 15, 18, 24];
+
+
   @override
   void dispose() {
     _precioCtrl.dispose(); _entradaCtrl.dispose(); _cuotasCtrl.dispose();
@@ -133,7 +138,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       final credito = CreditoDTO(
         montoTotal: double.parse(_precioCtrl.text),
         entrada: double.tryParse(_entradaCtrl.text) ?? 0,
-        plazoCuotas: int.parse(_cuotasCtrl.text),
+        plazoCuotas: int.parse(_cuotasCtrl.text) ,//_plazoSeleccionado!,
         frecuenciaPago: _frecuencia,
         diaPago: _fechaPago,
         valorPorCuota: _valorCuota,
@@ -211,6 +216,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             const SizedBox(height: 15),
             CustomTextField(label: 'Entrada (Pago Inicial)', controller: _entradaCtrl, keyboardType: TextInputType.number, icon: Icons.monetization_on),
             const SizedBox(height: 15),
+            
+
             CustomTextField(label: 'Plazo (Cuotas)', controller: _cuotasCtrl, keyboardType: TextInputType.number, icon: Icons.calendar_view_week),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(

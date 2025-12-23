@@ -83,7 +83,7 @@ print("Tienda nombre: ${registerProvider.tienda!.fechaRegistro}");
           child: Column(
             children: [
               // --- SECCIÓN LOGO (NUEVA) ---
-              Center(
+        /*      Center(
                 child: SizedBox(
                   width: 170,
                   child: PhotoUploadCard(
@@ -93,16 +93,21 @@ print("Tienda nombre: ${registerProvider.tienda!.fechaRegistro}");
                 ),
               ),
               const SizedBox(height: 20),
-
+*/
               CustomTextField(
                 label: 'Nombre de la Tienda', controller: _nombreTiendaCtrl, icon: Icons.store,
                 validator: (v) => v!.isEmpty ? 'Requerido' : null,
               ),
               const SizedBox(height: 15),
+
+        /*      
               CustomTextField(
                 label: 'Código de Tienda', controller: _codigoTiendaCtrl, icon: Icons.qr_code,
                 validator: (v) => v!.isEmpty ? 'Código requerido' : null,
               ),
+
+*/
+
               const SizedBox(height: 15),
               CustomTextField(
                 label: 'Nombre Encargado', controller: _encargadoCtrl, icon: Icons.person_pin,

@@ -29,8 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final creditoMostrarHome _creditoService = creditoMostrarHome();
   late Future<List<CreditoMostrarDTO>> _futureCreditos;
   late Future<void> _futureCreditos1;
-  final tiendaService _tiendaService = tiendaService();
+
+
+  final TiendaService _tiendaService = TiendaService();
   late Future<List<tiendaMostrar_dto>> _Tiendas;
+  //late Future<void> _Tiendas1;
+
   final UsuarioService _clienteService = UsuarioService();
   late Future<ClienteMostrarDTO> _futureClientes;
   CreditoMostrarDTO? creditoActual;
@@ -46,39 +50,41 @@ class _HomeScreenState extends State<HomeScreen> {
     direccion: "Av. Principal 123",
     //  fechaRegistro: DateTime.now(),
   );
- // final creditoServicio = creditoMostrarHome();
+  // final creditoServicio = creditoMostrarHome();
   int _cantidadNotificaciones = 0;
   @override
   void initState() {
     super.initState();
-    debugPrint("🔵 [HOME] usando instancia → hash: ${_creditoService.hashCode}");
+    debugPrint(
+      "🔵 [HOME] usando instancia → hash: ${_creditoService.hashCode}",
+    );
 
     _Tiendas = _tiendaService.getTienda();
     _futureClientes = _clienteService.getCliente();
 
-      debugPrint("🏠 [HOME] carga inicial créditos");
+    debugPrint("🏠 [HOME] carga inicial créditos");
     _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
     _creditoService.connectSignalR();
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-    final state = GoRouterState.of(context);
-     debugPrint("🏠 [HOME] extra recibido: ${state.extra}");
-    if (state.extra == true) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = GoRouterState.of(context);
+      debugPrint("🏠 [HOME] extra recibido: ${state.extra}");
+      if (state.extra == true) {
         debugPrint("🏠 [HOME] FORZANDO REFRESH DE CRÉDITOS");
-      _creditoService.cargarCreditos();
-    }
-  });
-  _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
-  _creditoService.connectSignalR();
+        _creditoService.cargarCreditos();
+      }
+    });
+    _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
+    _creditoService.connectSignalR();
 
     // 🔴 CARGAR NOTIFICACIONES AL INICIO
     _cargarNotificaciones();
 
     // 3. EJECUTAR RASTREO EN SEGUNDO PLANO (Sin await para no bloquear la UI)
     _locationService.sendCurrentLocation();
-}
+  }
 
-// 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
+  // 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
   Future<void> _cargarNotificaciones() async {
     try {
       final lista = await NotificacionService().getNotificaciones();
@@ -93,17 +99,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-Future<void> _initCreditoFlow() async {
-  await _creditoService.connectSignalR(); // ⏳ esperar conexión
-  //_futureCreditos = _creditoService.getCreditos();
-   _futureCreditos1 = _creditoService.getCreditos();
+  Future<void> _initCreditoFlow() async {
+    await _creditoService.connectSignalR(); // ⏳ esperar conexión
+    //_futureCreditos = _creditoService.getCreditos();
+    _futureCreditos1 = _creditoService.getCreditos();
   }
 
- 
-Future<void> _refreshCreditos() async {
-  _futureCreditos1 = _creditoService.getCreditos();
-  await _futureCreditos1;
-}
+  Future<void> _refreshCreditos() async {
+    _futureCreditos1 = _creditoService.getCreditos();
+    await _futureCreditos1;
+  }
+
+    Future<void> _refreshTienda() async {
+    _Tiendas = _tiendaService.getTienda();
+    await _Tiendas;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -198,7 +210,6 @@ Future<void> _refreshCreditos() async {
               },
             ),
 
-         
             const SizedBox(height: 5),
             FadeInDown(
               child: Text(
@@ -208,7 +219,6 @@ Future<void> _refreshCreditos() async {
             ),
 
             const SizedBox(height: 20),
-
 
             ValueListenableBuilder<List<CreditoMostrarDTO>?>(
               valueListenable: _creditoService.creditosNotifier,
@@ -229,6 +239,7 @@ Future<void> _refreshCreditos() async {
                             true, // Si no hay créditos, se asume que puede solicitar
                         onTap: () async {
                           context.push('/new-credit-request');
+                         
                           // await _refreshCreditos();
                         },
                       ),
@@ -249,12 +260,11 @@ Future<void> _refreshCreditos() async {
                       isPaid: estaPagado,
 
                       onTap: () async {
-                       //  context.push('/new-credit-request');
-                          await context.push('/new-credit-request');
-  await _refreshCreditos();
+                        //  context.push('/new-credit-request');
+                        await context.push('/new-credit-request');
+                        await _refreshCreditos();
+                        await _refreshTienda();
                       },
-
-                   
                     ),
                   ],
                 );
@@ -274,121 +284,140 @@ Future<void> _refreshCreditos() async {
             ),
             const SizedBox(height: 10),
 
-            FadeInUp(
-              delay: const Duration(milliseconds: 200),
-              child: FutureBuilder<List<tiendaMostrar_dto>>(
-                future: _Tiendas,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+          FadeInUp(
+  delay: const Duration(milliseconds: 200),
+  child: ValueListenableBuilder<List<CreditoMostrarDTO>?>(
+    valueListenable: _creditoService.creditosNotifier,
+    builder: (context, creditos, _) {
+      // ✅ Verificar que haya créditos
+      if (creditos == null || creditos.isEmpty) {
+        return const Text('No hay crédito activo para mostrar tienda');
+      }
 
-                  if (snapshot.hasError) {
-                    print("🔥 ERROR TIENDAS:");
-                    print(snapshot.error);
-                    print(snapshot.stackTrace);
+      final creditoActual = creditos.first;
 
-                    return const Text(
-                      'Error al cargar tienda',
-                      style: TextStyle(color: Colors.red),
-                    );
-                  }
+       return ValueListenableBuilder<List<tiendaMostrar_dto>?>(
+        valueListenable: _tiendaService.tiendasNotifier,
+        builder: (context, tiendas, _) {
+          if (tiendas == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('No hay tienda registrada');
-                  }
+          if (tiendas.isEmpty) {
+            return const Text('No hay tienda registrada');
+          }
 
-                  final tienda = snapshot.data!.last;
-
-                  return Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.store, color: Colors.orange),
-                        ),
-                        const SizedBox(width: 15),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                tienda.nombreEncargado,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                tienda.telefono,
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+          // 🏪 Buscar tienda asociada al crédito
+          final tienda = tiendas.firstWhere(
+            (t) => t.id == creditoActual.tiendaId,
+            orElse: () => tiendaMostrar_dto(
+              id: 0,
+              nombreEncargado: 'Tienda no encontrada',
+              telefono: '',
+              clienteId: 0,
             ),
+          );
+
+          debugPrint(
+            '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
+          ); 
+          
+
+          debugPrint('✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})');
+
+          return Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.store, color: Colors.orange),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tienda.nombreEncargado,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tienda.telefono,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  ),
+),
+
+
+            
 
             const SizedBox(height: 30),
 
-
-              // 4. Accesos Rápidos (Opcional pero útil)
-              FadeInUp(
-                delay: const Duration(milliseconds: 300),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _QuickActionBtn(
-                      icon: Icons.receipt_long,
-                      label: 'Historial',
-                      color: Colors.blue,
-                      onTap: () {},
-                    ),
-                    _QuickActionBtn(
-                      icon: Icons.support_agent,
-                      label: 'Soporte',
-                      color: Colors.purple,
-                      onTap: () {},
-                    ),
-                    _QuickActionBtn(
-                      icon: Icons.qr_code,
-                      label: 'Mi QR',
-                      color: Colors.teal,
-                      onTap: () {},
-                    ),
-                  ],
-                ),
+            // 4. Accesos Rápidos (Opcional pero útil)
+            FadeInUp(
+              delay: const Duration(milliseconds: 300),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _QuickActionBtn(
+                    icon: Icons.receipt_long,
+                    label: 'Historial',
+                    color: Colors.blue,
+                    onTap: () {},
+                  ),
+                  _QuickActionBtn(
+                    icon: Icons.support_agent,
+                    label: 'Soporte',
+                    color: Colors.purple,
+                    onTap: () {},
+                  ),
+                  _QuickActionBtn(
+                    icon: Icons.qr_code,
+                    label: 'Mi QR',
+                    color: Colors.teal,
+                    onTap: () {},
+                  ),
+                ],
               ),
+            ),
           ],
         ),
       ),

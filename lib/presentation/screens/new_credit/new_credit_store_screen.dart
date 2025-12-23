@@ -38,7 +38,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
       direccion: _direccionTiendaCtrl.text,
       
     );
-      final tiendaServicio = tiendaService();
+      final tiendaServicio = TiendaService();
 
    final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
     // 2. LLAMADA AL BACKEND (POST /Tienda)
@@ -46,8 +46,13 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
     await Future.delayed(const Duration(seconds: 1)); // Simulación
 
     // Suponemos que el backend devuelve el ID de la tienda creada o que se asocia internamente
-    int mockTiendaId = 99;
-
+   
+ await tiendaServicio.getTienda(forceRefresh: true);
+  debugPrint("🟠 [NEW Tienda] notifier → ${tiendaServicio.tiendasNotifier.value?.length}");
+ 
+     debugPrint("🔄 ValueNotifier después de actualizar:");
+    debugPrint(tiendaServicio.tiendasNotifier.value.toString());
+      await Future.delayed(const Duration(seconds: 2)); // Simulación
     if (mounted) {
       setState(() => _isLoading = false);
       // Avanzar al paso final: CRÉDITO + CALCULADORA

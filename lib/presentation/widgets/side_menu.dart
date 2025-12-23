@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../services/usuario_service.dart';
 class SideMenu extends StatelessWidget {
   final String userName;
   final String userEmail;
@@ -44,7 +44,10 @@ class SideMenu extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red)),
-            onTap: () {
+            onTap: () async {
+             final usuarioService = UsuarioService();
+
+    await usuarioService.logout(); // 🔥 AQUÍ se limpia TODO
               // Aquí podrías limpiar el Provider o Tokens
               context.go('/login');
             },
