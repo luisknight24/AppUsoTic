@@ -15,7 +15,7 @@ import '../../services/location_service.dart';
 import 'new_credit_request_screen.dart';
 
 import '../../services/notificacion_service.dart';
-
+import '../../models/notificacion_dto.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final creditoMostrarHome _creditoService = creditoMostrarHome();
   late Future<List<CreditoMostrarDTO>> _futureCreditos;
   late Future<void> _futureCreditos1;
-
+  final NotificacionService _notificacionService = NotificacionService();
 
   final TiendaService _tiendaService = TiendaService();
   late Future<List<tiendaMostrar_dto>> _Tiendas;
@@ -63,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _futureClientes = _clienteService.getCliente();
 
     debugPrint("🏠 [HOME] carga inicial créditos");
-    _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
-    _creditoService.connectSignalR();
+   // _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
+    //_creditoService.connectSignalR();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final state = GoRouterState.of(context);
@@ -87,13 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
   Future<void> _cargarNotificaciones() async {
     try {
-      final lista = await NotificacionService().getNotificaciones();
-      if (mounted) {
-        setState(() {
-          // Como el endpoint es 'pendientesNotApp', el total de la lista es el número a mostrar
-          _cantidadNotificaciones = lista.length;
-        });
-      }
+debugPrint("🔵 [HOME] Iniciando notificaciones...");
+      await _notificacionService.connectSignalR();
+      debugPrint("✅ [HOME] SignalR de notificaciones conectado");
+      final notificaciones = await _notificacionService.getNotificaciones();
+      _notificacionService.notificacionesNotifier.value = notificaciones;
+      debugPrint("✅ [HOME] ${notificaciones.length} notificaciones cargadas");
+
     } catch (e) {
       print("Error cargando notificaciones badge: $e");
     }
@@ -110,11 +110,10 @@ class _HomeScreenState extends State<HomeScreen> {
     await _futureCreditos1;
   }
 
-    Future<void> _refreshTienda() async {
+  Future<void> _refreshTienda() async {
     _Tiendas = _tiendaService.getTienda();
     await _Tiendas;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -126,28 +125,33 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: theme.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: Badge(
-              // Solo mostramos el globito si hay notificaciones
-              isLabelVisible: _cantidadNotificaciones > 0,
-              // El número
-              label: Text('$_cantidadNotificaciones'),
-              // Color del globito (opcional, por defecto es rojo theme)
-              backgroundColor: Colors.red,
-              // El ícono de siempre
-              child: const Icon(Icons.notifications_none),
-            ),
-            onPressed: () async {
-              // Navegamos y esperamos a que el usuario vuelva
-              await context.push('/notifications');
+             // 🔴 BADGE REACTIVO CON ValueListenableBuilder
+          ValueListenableBuilder<List<NotificacionDTO>?>(
+            valueListenable: _notificacionService.notificacionesNotifier,
+            builder: (context, notificaciones, child) {
+              // Contar solo las NO LEÍDAS
+              final noLeidas = notificaciones?.where((n) => !n.leida).length ?? 0;
 
-              // Al volver, recargamos el contador (por si leyó alguna)
-              _cargarNotificaciones();
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: noLeidas > 0,
+                  label: Text('$noLeidas'),
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.notifications_none),
+                ),
+                onPressed: () async {
+                  // Navegar a notificaciones
+                  await context.push('/notifications');
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sin notificaciones nuevas')),
+                  // Al volver, recargar notificaciones
+                  try {
+                    final actualizadas = await _notificacionService.getNotificaciones(forceRefresh: true);
+                    _notificacionService.notificacionesNotifier.value = actualizadas;
+                  } catch (e) {
+                    debugPrint("Error recargando notificaciones: $e");
+                  }
+                },
               );
-              context.push('/notifications');
             },
           ),
         ],
@@ -239,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             true, // Si no hay créditos, se asume que puede solicitar
                         onTap: () async {
                           context.push('/new-credit-request');
-                         
+
                           // await _refreshCreditos();
                         },
                       ),
@@ -284,110 +288,113 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10),
 
-          FadeInUp(
-  delay: const Duration(milliseconds: 200),
-  child: ValueListenableBuilder<List<CreditoMostrarDTO>?>(
-    valueListenable: _creditoService.creditosNotifier,
-    builder: (context, creditos, _) {
-      // ✅ Verificar que haya créditos
-      if (creditos == null || creditos.isEmpty) {
-        return const Text('No hay crédito activo para mostrar tienda');
-      }
+            FadeInUp(
+              delay: const Duration(milliseconds: 200),
+              child: ValueListenableBuilder<List<CreditoMostrarDTO>?>(
+                valueListenable: _creditoService.creditosNotifier,
+                builder: (context, creditos, _) {
+                  // ✅ Verificar que haya créditos
+                  if (creditos == null || creditos.isEmpty) {
+                    return const Text(
+                      'No hay crédito activo para mostrar tienda',
+                    );
+                  }
 
-      final creditoActual = creditos.first;
+                  final creditoActual = creditos.first;
 
-       return ValueListenableBuilder<List<tiendaMostrar_dto>?>(
-        valueListenable: _tiendaService.tiendasNotifier,
-        builder: (context, tiendas, _) {
-          if (tiendas == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                  return ValueListenableBuilder<List<tiendaMostrar_dto>?>(
+                    valueListenable: _tiendaService.tiendasNotifier,
+                    builder: (context, tiendas, _) {
+                      if (tiendas == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-          if (tiendas.isEmpty) {
-            return const Text('No hay tienda registrada');
-          }
+                      if (tiendas.isEmpty) {
+                        return const Text('No hay tienda registrada');
+                      }
 
-          // 🏪 Buscar tienda asociada al crédito
-          final tienda = tiendas.firstWhere(
-            (t) => t.id == creditoActual.tiendaId,
-            orElse: () => tiendaMostrar_dto(
-              id: 0,
-              nombreEncargado: 'Tienda no encontrada',
-              telefono: '',
-              clienteId: 0,
-            ),
-          );
-
-          debugPrint(
-            '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
-          ); 
-          
-
-          debugPrint('✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})');
-
-          return Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.store, color: Colors.orange),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tienda.nombreEncargado,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      // 🏪 Buscar tienda asociada al crédito
+                      final tienda = tiendas.firstWhere(
+                        (t) => t.id == creditoActual.tiendaId,
+                        orElse: () => tiendaMostrar_dto(
+                          id: 0,
+                          nombreEncargado: 'Tienda no encontrada',
+                          telefono: '',
+                          clienteId: 0,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        tienda.telefono,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
+                      );
+
+                      debugPrint(
+                        '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
+                      );
+
+                      debugPrint(
+                        '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
+                      );
+
+                      return Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                          border: Border.all(color: Colors.grey.shade200),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-              ],
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.store,
+                                color: Colors.orange,
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tienda.nombreEncargado,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    tienda.telefono,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          );
-        },
-      );
-    },
-  ),
-),
-
-
-            
 
             const SizedBox(height: 30),
 
