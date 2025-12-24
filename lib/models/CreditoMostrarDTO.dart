@@ -9,6 +9,11 @@ class CreditoMostrarDTO {
   final int plazoCuotas;
   final double valorPorCuota;
   final String estado;
+  final String marca;
+  final String modelo;
+  final double abonadoTotal;
+  final double abonadoCuota;
+  final String estadoCuota;
   final int clienteId;
   final int? tiendaId;
    final tiendaMostrar_dto? tienda;
@@ -22,6 +27,11 @@ class CreditoMostrarDTO {
     required this.valorPorCuota,
     required this.estado,
     required this.clienteId,
+    required this.marca,
+    required this.modelo,
+    required this.abonadoTotal,
+    required this.abonadoCuota,
+    required this.estadoCuota,
     this.tiendaId,
     this.tienda,
   });
@@ -41,6 +51,12 @@ class CreditoMostrarDTO {
       tienda: json['tienda'] != null
           ? tiendaMostrar_dto.fromJson(json['tienda'])
           : null,
+    marca: json['marca'] ?? '',
+    modelo: json['modelo'] ?? '',
+    abonadoTotal: (json['abonadoTotal'] ?? 0).toDouble(),
+    abonadoCuota: (json['abonadoCuota'] ?? 0).toDouble(),
+    estadoCuota: json['estadoCuota'] ?? '',
+
   );
 }
 
@@ -63,6 +79,11 @@ class CreditoMostrarDTO {
       clienteId: this.clienteId,
        tiendaId: tiendaId ?? this.tiendaId, 
       tienda: tienda ?? this.tienda,
+      marca: this.marca,
+      modelo: this.modelo,
+      abonadoTotal: this.abonadoTotal,
+      abonadoCuota: this.abonadoCuota,
+      estadoCuota: this.estadoCuota,
       
     );
   }

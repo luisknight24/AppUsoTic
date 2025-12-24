@@ -31,7 +31,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   final _precioCtrl = TextEditingController();
   final _entradaCtrl = TextEditingController();
   final _cuotasCtrl = TextEditingController();
-
+ final _marcaCtrl = TextEditingController();
+  final _modeloCtrl = TextEditingController();
   String _frecuencia = 'Semanal';
   DateTime _fechaPago = DateTime.now();
 
@@ -60,6 +61,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   @override
   void dispose() {
     _precioCtrl.dispose(); _entradaCtrl.dispose(); _cuotasCtrl.dispose();
+     _marcaCtrl.dispose();
+    _modeloCtrl.dispose();
     super.dispose();
   }
 
@@ -147,9 +150,14 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
         estado: 'Pendiente',
         fechaCreacion: DateTime.now().toUtc(),
+        marca: _marcaCtrl.text,
+        modelo: _modeloCtrl.text,
+        estadoCuota: "Pendiente",
+        abonadoTotal: 0.0,
         // ASIGNAMOS LAS URLS
         fotoContratoUrl: urlContrato,
         fotoCelularUrl: urlCelular,
+
       );
 
       final registerProvider = context.read<RegisterProvider>();
@@ -209,7 +217,17 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+                        
+               Row(
+                children: [
+                  Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                  const SizedBox(width: 10),
+                  Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
+                ],
+              ),
+
+ const SizedBox(height: 15),
 
             // --- CAMPOS ---
             CustomTextField(label: 'Precio Equipo (Total)', controller: _precioCtrl, keyboardType: TextInputType.number, icon: Icons.smartphone),

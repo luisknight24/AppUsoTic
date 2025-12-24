@@ -30,6 +30,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   final _montoCtrl = TextEditingController();
   final _entradaCtrl = TextEditingController();
   final _plazoCtrl = TextEditingController();
+    final _marcaCtrl = TextEditingController();
+  final _modeloCtrl = TextEditingController();
  DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
 
@@ -62,6 +64,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _montoCtrl.dispose();
     _entradaCtrl.dispose();
     _plazoCtrl.dispose();
+     _marcaCtrl.dispose();
+    _modeloCtrl.dispose();
     super.dispose();
   }
  // NUEVO: Variable para el combo de cuotas
@@ -138,7 +142,12 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       await Future.delayed(const Duration(seconds: 2));
      
 
-      if (mounted) Navigator.pop(context); // Cierra loading fotos
+      //if (mounted) Navigator.pop(context); // Cierra loading fotos
+
+        // Cerrar loading UNA sola vez
+  if (mounted && Navigator.canPop(context)) {
+    Navigator.pop(context);
+  }
 
       // 2. CREAR DTO
       final credito = CreditoDTO(
@@ -156,10 +165,14 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         estado: "Pendiente",
         tiendaId: widget.tiendaId,
          fechaCreacion: DateTime.now().toUtc(),
-        
+        marca: _marcaCtrl.text,
+        modelo: _modeloCtrl.text,
+        estadoCuota: "Pendiente",
+        abonadoTotal: 0.0,
         // Nuevos campos
         fotoContratoUrl: urlContrato,
         fotoCelularUrl: urlCelular,
+
       );
         //final CreditoServicio = creditoMostrarHome();
 
@@ -182,16 +195,38 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     debugPrint(creditoHomeService.creditosNotifier.value.toString());
       await Future.delayed(const Duration(seconds: 2)); // Simulación
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        _mostrarExito(credito.montoTotal);
-      }
+     if (mounted) {
+  debugPrint('🟢 BEFORE setState éxito');
+  setState(() => _isLoading = false);
 
-    } catch (e) {
-      if (mounted) Navigator.pop(context);
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al enviar solicitud')));
-    }
+  debugPrint('🟢 BEFORE _mostrarExito');
+  _mostrarExito(credito.montoTotal);
+  debugPrint('🟢 AFTER _mostrarExito');
+}
+
+} catch (e, stackTrace) {
+  debugPrint('❌❌❌ ERROR AL ENVIAR SOLICITUD ❌❌❌');
+  debugPrint('🧨 Tipo: ${e.runtimeType}');
+  debugPrint('🧨 Mensaje: $e');
+  debugPrint('📍 StackTrace:\n$stackTrace');
+
+  if (mounted) {
+    debugPrint('↩️ Navigator.pop en catch');
+    Navigator.pop(context);
+  } else {
+    debugPrint('⚠️ Widget no montado, no pop');
+  }
+
+  if (mounted) {
+    debugPrint('🔄 setState(_isLoading = false) en catch');
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Error al enviar solicitud')),
+    );
+  }
+}
+
   }
 
   void _mostrarExito(double monto) {
@@ -271,8 +306,16 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+               Row(
+                children: [
+                  Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                  const SizedBox(width: 10),
+                  Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
+                ],
+              ),
 
+ const SizedBox(height: 15),
               // --- CAMPOS ---
               CustomTextField(
                 label: 'Precio Equipo (\$)',

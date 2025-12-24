@@ -22,6 +22,13 @@ class CreditoDTO {
   String? fotoContratoUrl;
   String? fotoCelularUrl;
 
+
+  String marca;
+ String modelo;
+   double? abonadoTotal;
+ double? abonadoCuota; // Cuánto ha pagado de la cuota actual
+   String? estadoCuota; 
+
   CreditoDTO({
     this.id = 0,
     required this.montoTotal,
@@ -38,7 +45,13 @@ class CreditoDTO {
     this.tiendaId = 0,
     this.fechaCreacion,
     this.fotoContratoUrl, // Nuevo
-    this.fotoCelularUrl,  // Nuevo
+    this.fotoCelularUrl,
+    required this.marca,
+    required this.modelo,
+    this.abonadoTotal,
+    this.abonadoCuota,
+    this.estadoCuota,
+
   });
 
   // ------------------- FROM JSON -------------------
@@ -50,24 +63,28 @@ class CreditoDTO {
     }
 
     return CreditoDTO(
-      id: json['Id'] ?? 0,
-      montoTotal: (json['MontoTotal'] ?? 0).toDouble(),
-      entrada: (json['Entrada'] ?? 0).toDouble(),
-      plazoCuotas: json['PlazoCuotas'] ?? 0,
-      frecuenciaPago: json['FrecuenciaPago'] ?? '',
-      diaPago: parseDate(json['DiaPago']),
-      valorPorCuota: (json['ValorPorCuota'] ?? 0).toDouble(),
-      montoPendiente: (json['MontoPendiente'] ?? 0).toDouble(),
-      proximaCuota: parseDate(json['ProximaCuota']),
-      proximaCuotaStr: json['ProximaCuotaStr'],
-      estado: json['Estado'],
-      clienteId: json['ClienteId'] ?? 0,
-      tiendaId: json['TiendaId'] ?? 0, // 
-      fechaCreacion: parseDate(json['FechaCreacion']),
-      // Mapeo de nuevos campos
-      fotoContratoUrl: json['FotoContrato'],
-      fotoCelularUrl: json['FotoCelularEntregadoUrl'],
-    );
+    id: json['id'] ?? 0,
+    montoTotal: (json['montoTotal'] ?? 0).toDouble(),
+    entrada: (json['entrada'] ?? 0).toDouble(),
+    plazoCuotas: json['plazoCuotas'] ?? 0,
+    frecuenciaPago: json['frecuenciaPago'] ?? '',
+    diaPago: parseDate(json['diaPago']),
+    valorPorCuota: (json['valorPorCuota'] ?? 0).toDouble(),
+    montoPendiente: (json['montoPendiente'] ?? 0).toDouble(),
+    proximaCuota: parseDate(json['proximaCuota']),
+    proximaCuotaStr: json['proximaCuotaStr'] ?? '',
+    estado: json['estado'] ?? '',
+    clienteId: json['clienteId'] ?? 0,
+    tiendaId: json['tiendaId'] ?? 0,
+    fechaCreacion: parseDate(json['fechaCreacion']),
+    fotoContratoUrl: json['fotoContrato'] ?? '',
+    fotoCelularUrl: json['fotoCelularEntregadoUrl'] ?? '',
+    marca: json['marca'] ?? '',
+    modelo: json['modelo'] ?? '',
+    abonadoTotal: (json['abonadoTotal'] ?? 0).toDouble(),
+    abonadoCuota: (json['abonadoCuota'] ?? 0).toDouble(),
+    estadoCuota: json['estadoCuota'] ?? '',
+  );
   }
 
   // ------------------- TO JSON -------------------
@@ -89,7 +106,14 @@ class CreditoDTO {
       'TiendaId': tiendaId,
     'FotoContrato': fotoContratoUrl,
     'FotoCelularEntregadoUrl': fotoCelularUrl,
-   
+    'Marca': marca,
+    'Modelo': modelo,
+
+    'AbonadoTotal': abonadoTotal ?? 0,
+    'AbonadoCuota': abonadoCuota ?? 0,
+    'EstadoCuota': estadoCuota,
+
+
       };
 
 }

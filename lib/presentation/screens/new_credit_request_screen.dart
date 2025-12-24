@@ -81,16 +81,6 @@ class _NewCreditRequestScreenState extends State<NewCreditRequestScreen> {
       await Future.delayed(const Duration(seconds: 2));
 
       // 4. PREPARACIÓN DEL DTO (Datos Financieros)
-      final solicitudCredito = CreditoDTO(
-        id: 0,
-        clienteId: widget.clienteId,
-        montoTotal: double.parse(_montoCtrl.text),
-        entrada: _entradaCtrl.text.isEmpty ? 0.0 : double.parse(_entradaCtrl.text),
-        plazoCuotas: int.parse(_plazoCtrl.text),
-        frecuenciaPago: _frecuenciaSeleccionada!,
-        diaPago: DateTime.now(),
-        estado: "PENDIENTE",
-      );
 
       // NOTA PARA IMPLEMENTACIÓN DEL BACKEND:
       // Aquí tienes dos opciones:
@@ -116,7 +106,7 @@ class _NewCreditRequestScreenState extends State<NewCreditRequestScreen> {
 
       if (mounted) {
         setState(() => _isLoading = false);
-        _mostrarDialogoExito(solicitudCredito.montoTotal);
+        _mostrarDialogoExito(double.parse(_montoCtrl.text));
       }
 
     } catch (e) {
