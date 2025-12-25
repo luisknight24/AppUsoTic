@@ -5,6 +5,7 @@ import 'package:trabajo1/models/ClienteMostrarDTO.dart';
 import 'package:trabajo1/models/DetalleCLientePostDTO.dart';
 import 'package:trabajo1/services/creditoMostrarHome.dart';
 import '../../../services/tiendaService.dart';
+import '../../../services/notificacion_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -18,6 +19,7 @@ class UsuarioService {
 
 final creditoMostrarHome creditoService = creditoMostrarHome();
 final TiendaService tiendaService = TiendaService();
+final NotificacionService notificacionService = NotificacionService();
   Future<dynamic> iniciarSesion(String correo, String clave) async {
     final url = Uri.parse("$baseUrl/Usuario/IniciarSesion");
 
@@ -248,6 +250,7 @@ Future<void> logout() async {
   // 3️⃣ Limpiar créditos + SignalR
   await creditoService.limpiar();
   await tiendaService.limpiar();
+   await notificacionService.limpiar();
   print("✅ Logout completo");
 }
 
