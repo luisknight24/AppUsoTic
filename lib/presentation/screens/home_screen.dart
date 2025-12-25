@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
     _creditoService.connectSignalR();
-
+  _notificacionService.connectSignalR(); 
     // 🔴 CARGAR NOTIFICACIONES AL INICIO
     _cargarNotificaciones();
 
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _cargarNotificaciones() async {
     try {
 debugPrint("🔵 [HOME] Iniciando notificaciones...");
-      await _notificacionService.connectSignalR();
+     // await _notificacionService.connectSignalR();
       debugPrint("✅ [HOME] SignalR de notificaciones conectado");
       final notificaciones = await _notificacionService.getNotificaciones();
       _notificacionService.notificacionesNotifier.value = notificaciones;
