@@ -5,8 +5,8 @@ import '../models/enviar_codigo_dto.dart';
 import '../models/usuario_dto.dart';
 
 class ValidarCuenta {
-  final String baseUrl1 = "https://apicredito2-8.onrender.com/api";
-   final String baseUrl = "http://192.168.100.13:7166/api";
+  final String baseUrl = "https://apicredito2-8.onrender.com/api";
+   final String baseUrl1 = "http://192.168.100.13:7166/api";
 Future<VerificarDTO?> verificarCuenta(VerificarDTO dto) async {
   final url = Uri.parse('$baseUrl/EmailValidation/ValidarCodigo');
   print('--- FORGOT PASSWORD ---');
