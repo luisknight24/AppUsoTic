@@ -15,24 +15,24 @@ class NewCreditFinancialScreen extends StatefulWidget {
   final int tiendaId;
 
   const NewCreditFinancialScreen({super.key, required this.tiendaId,
-  /*, required this.clienteId, required this.tiendaId*/});
+    /*, required this.clienteId, required this.tiendaId*/});
 
   @override
   State<NewCreditFinancialScreen> createState() => _NewCreditFinancialScreenState();
 }
 
 class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
- 
- final creditoMostrarHome creditoHomeService = creditoMostrarHome();
+
+  final creditoMostrarHome creditoHomeService = creditoMostrarHome();
 
   final _formKey = GlobalKey<FormState>();
 
   final _montoCtrl = TextEditingController();
   final _entradaCtrl = TextEditingController();
   final _plazoCtrl = TextEditingController();
-    final _marcaCtrl = TextEditingController();
+  final _marcaCtrl = TextEditingController();
   final _modeloCtrl = TextEditingController();
- DateTime _proximaCuota = DateTime.now();
+  DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
 
   // VARIABLES DE EVIDENCIA (Contrato y Celular)
@@ -47,7 +47,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
 
   final List<String> _frecuencias = ['Semanal', 'Quincenal', 'Mensual'];
 //final creditoServicio = creditoMostrarHome();
- //late final creditoMostrarHome creditoServicio;
+  //late final creditoMostrarHome creditoServicio;
 
   @override
   void initState() {
@@ -55,8 +55,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _montoCtrl.addListener(_calcularValores);
     _entradaCtrl.addListener(_calcularValores);
     _plazoCtrl.addListener(_calcularValores);
-    
-     debugPrint("🟠 [NEW CREDIT] usando instancia → hash: ${creditoHomeService.hashCode}");
+
+    debugPrint("🟠 [NEW CREDIT] usando instancia → hash: ${creditoHomeService.hashCode}");
   }
 
   @override
@@ -64,13 +64,14 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _montoCtrl.dispose();
     _entradaCtrl.dispose();
     _plazoCtrl.dispose();
-     _marcaCtrl.dispose();
+    _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     super.dispose();
   }
- // NUEVO: Variable para el combo de cuotas
+  // NUEVO: Variable para el combo de cuotas
   int? _plazoSeleccionado;
   final List<int> _opcionesCuotas = [3, 6, 9, 12, 15, 18, 24];
+
   // --- LÓGICA DE CALCULADORA ---
   void _calcularValores() {
     double monto = double.tryParse(_montoCtrl.text) ?? 0.0;
@@ -80,17 +81,12 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     if (monto > 0 && plazo > 0) {
       double saldoFinanciar = monto - entrada;
 
-      // Simulación de Interés
-      double factorInteres = 1.0;
-      if (_frecuenciaSeleccionada == 'Semanal') factorInteres = 1.05;
-      if (_frecuenciaSeleccionada == 'Quincenal') factorInteres = 1.10;
-      if (_frecuenciaSeleccionada == 'Mensual') factorInteres = 1.15;
-
-      double totalConInteres = saldoFinanciar * (_frecuenciaSeleccionada != null ? factorInteres : 1.0);
+      // CAMBIO: Se eliminó el factor de interés. Ahora es directo.
+      double totalSinInteres = saldoFinanciar;
 
       setState(() {
-        _totalPagar = totalConInteres;
-        _valorCuota = totalConInteres / plazo;
+        _totalPagar = totalSinInteres;
+        _valorCuota = totalSinInteres / plazo;
       });
     } else {
       setState(() {
@@ -135,24 +131,24 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       final firebaseService = FirebaseService();
 
       // 1. SUBIR EVIDENCIAS
-       String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos_nuevos');
+      String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos_nuevos');
       String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares_nuevos');
 
       // Simulación
       await Future.delayed(const Duration(seconds: 2));
-     
+
 
       //if (mounted) Navigator.pop(context); // Cierra loading fotos
 
-        // Cerrar loading UNA sola vez
-  if (mounted && Navigator.canPop(context)) {
-    Navigator.pop(context);
-  }
+      // Cerrar loading UNA sola vez
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
 
       // 2. CREAR DTO
       final credito = CreditoDTO(
         id: 0,
-       // clienteId: widget.clienteId,
+        // clienteId: widget.clienteId,
         montoTotal: double.parse(_montoCtrl.text),
         entrada: _entradaCtrl.text.isEmpty ? 0.0 : double.parse(_entradaCtrl.text),
         plazoCuotas: int.parse(_plazoCtrl.text),//int.parse(_plazoCtrl.text) _plazoSeleccionado!,
@@ -160,11 +156,11 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         valorPorCuota: _valorCuota,
         montoPendiente: _totalPagar,
         diaPago: DateTime.now(),
-         proximaCuota: _proximaCuota,
+        proximaCuota: _proximaCuota,
         proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
         estado: "Pendiente",
         tiendaId: widget.tiendaId,
-         fechaCreacion: DateTime.now().toUtc(),
+        fechaCreacion: DateTime.now().toUtc(),
         marca: _marcaCtrl.text,
         modelo: _modeloCtrl.text,
         estadoCuota: "Pendiente",
@@ -174,58 +170,58 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         fotoCelularUrl: urlCelular,
 
       );
-        //final CreditoServicio = creditoMostrarHome();
+      //final CreditoServicio = creditoMostrarHome();
 
-   final response=await creditoHomeService.guardarCredito(credito);
+      final response=await creditoHomeService.guardarCredito(credito);
 
       debugPrint("✅ [NEW CREDIT] Crédito creado en backend:");
-    debugPrint("id: ${response.id}");
-    debugPrint("montoPendiente: ${response.montoPendiente}");
-    debugPrint("estado: ${response.estado}");
-    debugPrint("proximaCuotaStr: ${response.proximaCuotaStr}");
-    
-   
+      debugPrint("id: ${response.id}");
+      debugPrint("montoPendiente: ${response.montoPendiente}");
+      debugPrint("estado: ${response.estado}");
+      debugPrint("proximaCuotaStr: ${response.proximaCuotaStr}");
+
+
       // LLAMADA AL BACKEND:
 
-  // 2️⃣ Refrescar la lista completa desde backend
-  await creditoHomeService.getCreditos(forceRefresh: true);
-  debugPrint("🟠 [NEW CREDIT] notifier → ${creditoHomeService.creditosNotifier.value?.length}");
- 
-     debugPrint("🔄 ValueNotifier después de actualizar:");
-    debugPrint(creditoHomeService.creditosNotifier.value.toString());
+      // 2️⃣ Refrescar la lista completa desde backend
+      await creditoHomeService.getCreditos(forceRefresh: true);
+      debugPrint("🟠 [NEW CREDIT] notifier → ${creditoHomeService.creditosNotifier.value?.length}");
+
+      debugPrint("🔄 ValueNotifier después de actualizar:");
+      debugPrint(creditoHomeService.creditosNotifier.value.toString());
       await Future.delayed(const Duration(seconds: 2)); // Simulación
 
-     if (mounted) {
-  debugPrint('🟢 BEFORE setState éxito');
-  setState(() => _isLoading = false);
+      if (mounted) {
+        debugPrint('🟢 BEFORE setState éxito');
+        setState(() => _isLoading = false);
 
-  debugPrint('🟢 BEFORE _mostrarExito');
-  _mostrarExito(credito.montoTotal);
-  debugPrint('🟢 AFTER _mostrarExito');
-}
+        debugPrint('🟢 BEFORE _mostrarExito');
+        _mostrarExito(credito.montoTotal);
+        debugPrint('🟢 AFTER _mostrarExito');
+      }
 
-} catch (e, stackTrace) {
-  debugPrint('❌❌❌ ERROR AL ENVIAR SOLICITUD ❌❌❌');
-  debugPrint('🧨 Tipo: ${e.runtimeType}');
-  debugPrint('🧨 Mensaje: $e');
-  debugPrint('📍 StackTrace:\n$stackTrace');
+    } catch (e, stackTrace) {
+      debugPrint('❌❌❌ ERROR AL ENVIAR SOLICITUD ❌❌❌');
+      debugPrint('🧨 Tipo: ${e.runtimeType}');
+      debugPrint('🧨 Mensaje: $e');
+      debugPrint('📍 StackTrace:\n$stackTrace');
 
-  if (mounted) {
-    debugPrint('↩️ Navigator.pop en catch');
-    Navigator.pop(context);
-  } else {
-    debugPrint('⚠️ Widget no montado, no pop');
-  }
+      if (mounted) {
+        debugPrint('↩️ Navigator.pop en catch');
+        Navigator.pop(context);
+      } else {
+        debugPrint('⚠️ Widget no montado, no pop');
+      }
 
-  if (mounted) {
-    debugPrint('🔄 setState(_isLoading = false) en catch');
-    setState(() => _isLoading = false);
+      if (mounted) {
+        debugPrint('🔄 setState(_isLoading = false) en catch');
+        setState(() => _isLoading = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Error al enviar solicitud')),
-    );
-  }
-}
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al enviar solicitud')),
+        );
+      }
+    }
 
   }
 
@@ -246,13 +242,13 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(c);
-  //            context.go('/home');
+              //            context.go('/home');
               context.go('/home', extra: true);
-                      // cerrar diálogo
- // context.go('/home', extra: true);
-  debugPrint("✅ [NEW CREDIT] Crédito creado, haciendo pop()");
+              // cerrar diálogo
+              // context.go('/home', extra: true);
+              debugPrint("✅ [NEW CREDIT] Crédito creado, haciendo pop()");
 //context.pop(true);
-  // context.pop(true);      // Volver al inicio
+              // context.pop(true);      // Volver al inicio
             },
             child: const Text('FINALIZAR'),
           )
@@ -307,7 +303,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-               Row(
+              Row(
                 children: [
                   Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
                   const SizedBox(width: 10),
@@ -315,7 +311,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 ],
               ),
 
- const SizedBox(height: 15),
+              const SizedBox(height: 15),
               // --- CAMPOS ---
               CustomTextField(
                 label: 'Precio Equipo (\$)',
@@ -342,11 +338,18 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                       controller: _plazoCtrl,
                       keyboardType: TextInputType.number,
                       icon: Icons.calendar_today,
-                      validator: (v) => v!.isEmpty ? 'Requerido' : null,
+                      // --- VALIDACIÓN DE CUOTAS ---
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Requerido';
+                        final val = int.tryParse(v);
+                        if (val != null && val > 24) return 'Máx 24 cuotas';
+                        return null;
+                      },
+                      // ----------------------------
                     ),
 
 // 4. CAMBIO: DROPDOWN DE CUOTAS
-                  
+
 
                   ),
                   const SizedBox(width: 15),

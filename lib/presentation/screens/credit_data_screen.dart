@@ -16,9 +16,9 @@ import '../../services/firebase_service.dart'; // IMPORTANTE
 
 class CreditDataScreen extends StatefulWidget {
 
-  
+
   const CreditDataScreen({super.key
-  
+
 
   });
 
@@ -31,7 +31,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   final _precioCtrl = TextEditingController();
   final _entradaCtrl = TextEditingController();
   final _cuotasCtrl = TextEditingController();
- final _marcaCtrl = TextEditingController();
+  final _marcaCtrl = TextEditingController();
   final _modeloCtrl = TextEditingController();
   String _frecuencia = 'Semanal';
   DateTime _fechaPago = DateTime.now();
@@ -53,7 +53,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _cuotasCtrl.addListener(_calcularValores);
   }
 
-    // NUEVO: Variable para el combo de cuotas
+  // NUEVO: Variable para el combo de cuotas
   int? _plazoSeleccionado;
   final List<int> _opcionesCuotas = [3, 6, 9, 12, 15, 18, 24];
 
@@ -61,7 +61,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   @override
   void dispose() {
     _precioCtrl.dispose(); _entradaCtrl.dispose(); _cuotasCtrl.dispose();
-     _marcaCtrl.dispose();
+    _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     super.dispose();
   }
@@ -103,14 +103,24 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       return;
     }
 
+    // --- VALIDACIÓN DE CUOTAS (NUEVO) ---
+    final int cuotasIngresadas = int.tryParse(_cuotasCtrl.text) ?? 0;
+    if (cuotasIngresadas > 24) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El plazo máximo es de 24 cuotas'), backgroundColor: Colors.red)
+      );
+      return;
+    }
+    // ------------------------------------
+
     // 1. VALIDAR FOTOS
     if (_fotoContrato == null || _fotoCelular == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Debes subir fotos de Contrato y Celular'), backgroundColor: Colors.red));
       return;
     }
 
-  // Guardar crédito en Provider
- 
+    // Guardar crédito en Provider
+
     setState(() => _isUploading = true);
 
     // Dialogo de Carga
@@ -218,23 +228,23 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
               ),
             ),
             const SizedBox(height: 20),
-                        
-               Row(
-                children: [
-                  Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
-                  const SizedBox(width: 10),
-                  Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
-                ],
-              ),
 
- const SizedBox(height: 15),
+            Row(
+              children: [
+                Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                const SizedBox(width: 10),
+                Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
+              ],
+            ),
+
+            const SizedBox(height: 15),
 
             // --- CAMPOS ---
             CustomTextField(label: 'Precio Equipo (Total)', controller: _precioCtrl, keyboardType: TextInputType.number, icon: Icons.smartphone),
             const SizedBox(height: 15),
             CustomTextField(label: 'Entrada (Pago Inicial)', controller: _entradaCtrl, keyboardType: TextInputType.number, icon: Icons.monetization_on),
             const SizedBox(height: 15),
-            
+
 
             CustomTextField(label: 'Plazo (Cuotas)', controller: _cuotasCtrl, keyboardType: TextInputType.number, icon: Icons.calendar_view_week),
             const SizedBox(height: 20),
