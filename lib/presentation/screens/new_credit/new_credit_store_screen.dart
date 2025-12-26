@@ -79,8 +79,8 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
 
               CustomTextField(label: 'Nombre de la Tienda', controller: _nombreTiendaCtrl, icon: Icons.store),
               const SizedBox(height: 15),
-              CustomTextField(label: 'Código de Tienda (QR)', controller: _codigoTiendaCtrl, icon: Icons.qr_code),
-              const SizedBox(height: 15),
+              //CustomTextField(label: 'Código de Tienda (QR)', controller: _codigoTiendaCtrl, icon: Icons.qr_code),
+              //const SizedBox(height: 15),
               CustomTextField(label: 'Nombre Vendedor', controller: _encargadoCtrl, icon: Icons.person_pin),
               const SizedBox(height: 15),
               CustomTextField(label: 'Teléfono Tienda', controller: _telefonoTiendaCtrl, keyboardType: TextInputType.phone, icon: Icons.phone),

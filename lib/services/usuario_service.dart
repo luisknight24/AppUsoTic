@@ -12,7 +12,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UsuarioService {
   final String baseUrl = "https://apicredito2-8.onrender.com/api";
- final String baseUrl1 = "http://192.168.100.13:7166/api";
+ final String baseUrl1 = "https://apicredito2-8.onrender.com/api";
  
  final storage = const FlutterSecureStorage();
  ClienteMostrarDTO? _cacheCliente;

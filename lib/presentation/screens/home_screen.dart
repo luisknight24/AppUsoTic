@@ -403,6 +403,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
               delay: const Duration(milliseconds: 300),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                /*
                 children: [
                   _QuickActionBtn(
                     icon: Icons.receipt_long,
@@ -422,7 +423,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
                     color: Colors.teal,
                     onTap: () {},
                   ),
-                ],
+                ],*/
               ),
             ),
           ],

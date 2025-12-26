@@ -7,8 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:signalr_core/signalr_core.dart';
 class NotificacionService {
   final String baseUrl1 ="https://apicredito2-8.onrender.com/api";
-  final String baseUrl= "http://192.168.100.13:7166/api";
-   final String baseUrl11="http://192.168.100.13:7166";
+  final String baseUrl= "https://apicredito2-8.onrender.com/api";
+   final String baseUrl11="https://apicredito2-8.onrender.com/api";
  final storage = const FlutterSecureStorage();
 
   late HubConnection _connection;

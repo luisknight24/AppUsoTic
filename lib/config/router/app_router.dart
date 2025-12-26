@@ -4,8 +4,10 @@ import '../../presentation/screens/new_credit/new_credit_financial_screen.dart';
 import '../../presentation/screens/new_credit/new_credit_store_screen.dart';
 import '../../presentation/screens/new_credit_request_screen.dart';
 import '../../presentation/screens/notifications_screen.dart';
+import '../../presentation/screens/profile_screen.dart';
 import '../../presentation/screens/screens.dart'; // Crearemos este archivo barril abajo
 import '../../presentation/screens/client_data_screen.dart';
+import '../../presentation/screens/settings_screen.dart';
 import '../../presentation/screens/store_data_screen.dart';
 import '../../presentation/screens/credit_data_screen.dart';
 import '../../presentation/screens/forgot_password_screen.dart';
@@ -51,6 +53,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/home',
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
       path: '/notifications',
