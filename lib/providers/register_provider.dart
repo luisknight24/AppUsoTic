@@ -77,7 +77,7 @@ CreditoDTO? get credito => _creditoData;
     print("--- DTO READY ---");
     print("User: ${_usuarioData.nombreApellidos}");
     print("Cedula: ${_detalleClienteData?.numeroCedula}");
-    print("Tienda: ${_tiendaData?.nombreTienda}");
+    //print("Tienda: ${_tiendaData?.nombreTienda}");
     print("Credito Total: ${_creditoData?.montoTotal}");
   }
 

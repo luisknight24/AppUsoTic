@@ -172,7 +172,7 @@ void _actualizarTiendaDesdeEvento(tiendaMostrar_dto nuevaTienda) {
   //final actual = _cacheCreditos![index];
 _cacheTiendas![index] = nuevaTienda;
   tiendasNotifier.value = List.from(_cacheTiendas!);
-   debugPrint("✅ Tienda actualizada | id: ${nuevaTienda.id} | nombre: ${nuevaTienda.nombreEncargado}");
+   //debugPrint("✅ Tienda actualizada | id: ${nuevaTienda.id} | nombre: ${nuevaTienda.nombreEncargado}");
 }
 
 /// 🧹 LIMPIAR ESTADO AL CAMBIAR DE USUARIO
@@ -182,7 +182,7 @@ Future<void> limpiar() async {
 
 
   // 2️⃣ Limpiar cache
-  _cacheTiendas = null;
+   _cacheTiendas = null;
 
   // 3️⃣ Limpiar notifiers
   tiendasNotifier.value = null;

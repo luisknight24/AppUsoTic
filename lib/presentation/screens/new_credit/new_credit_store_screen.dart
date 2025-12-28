@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../../models/tienda_crear_dto.dart';
+// import '../../../models/tienda_crear_dto.dart'; // YA NO USAMOS ESTE
+import '../../../models/tienda_dto.dart'; // USAMOS ESTE AHORA
 import '../../../presentation/widgets/custom_text_field.dart';
 import '../../../services/tiendaService.dart';
 
-
 class NewCreditStoreScreen extends StatefulWidget {
-   //final int tiendaId;
+  //final int tiendaId;
   //final int clienteId;
   const NewCreditStoreScreen({super.key,/* required this.tiendaId*/});
 
@@ -17,49 +17,80 @@ class NewCreditStoreScreen extends StatefulWidget {
 
 class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreTiendaCtrl = TextEditingController();
-  final _codigoTiendaCtrl = TextEditingController();
-  final _encargadoCtrl = TextEditingController();
-  final _telefonoTiendaCtrl = TextEditingController();
-  final _direccionTiendaCtrl = TextEditingController();
+
+  // CAMBIO: Solo necesitamos controlador de Cédula
+  final _cedulaEncargadoCtrl = TextEditingController();
+
+  // CAMBIO: Variable para comisión
+  String _estadoComision = 'Pendiente';
+  final List<String> _opcionesComision = ['Pendiente', 'Recibida'];
 
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _cedulaEncargadoCtrl.dispose();
+    super.dispose();
+  }
+
+  // --- MAQUETACIÓN DE VALIDACIÓN (Igual que en StoreDataScreen) ---
+  Future<bool> _validarEncargadoEnBackend(String cedula) async {
+    // Simulación de llamada al API
+    await Future.delayed(const Duration(seconds: 1));
+    // Lógica Mock: Solo acepta cédulas de 10 dígitos
+    return cedula.length == 10;
+  }
+
   void _guardarTienda() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _isLoading = true);
 
-    // 1. Crear DTO Tienda
-    final tienda = TiendaCrearDTO(
-      nombreTienda: _nombreTiendaCtrl.text,
-      //codigoTienda: _codigoTiendaCtrl.text,
-      nombreEncargado: _encargadoCtrl.text,
-      telefono: _telefonoTiendaCtrl.text,
-      direccion: _direccionTiendaCtrl.text,
-      
+    // 1. VALIDAR CÉDULA PRIMERO
+    final bool existe = await _validarEncargadoEnBackend(_cedulaEncargadoCtrl.text);
+
+    if (!existe) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: Encargado no encontrado'), backgroundColor: Colors.red),
+        );
+      }
+      return;
+    }
+
+    // 2. Crear DTO Tienda (Con los nuevos campos)
+    final tienda = TiendaDTO(
+      cedulaEncargado: _cedulaEncargadoCtrl.text,
+      estadoDeComision: _estadoComision,
+      fechaRegistro: DateTime.now(), // Se asigna al crear
+      // Id se genera en backend
     );
-      final tiendaServicio = TiendaService();
 
-   final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
-    // 2. LLAMADA AL BACKEND (POST /Tienda)
-    // int tiendaId = await tiendaService.crearTienda(tienda);
-    await Future.delayed(const Duration(seconds: 1)); // Simulación
+    final tiendaServicio = TiendaService();
 
-    // Suponemos que el backend devuelve el ID de la tienda creada o que se asocia internamente
-   
- await tiendaServicio.getTienda(forceRefresh: true);
-  debugPrint("🟠 [NEW Tienda] notifier → ${tiendaServicio.tiendasNotifier.value?.length}");
- 
-     debugPrint("🔄 ValueNotifier después de actualizar:");
+    // 3. LLAMADA AL BACKEND
+    // Nota: Asegúrate de que GuardarTienda acepte TiendaDTO ahora
+    //final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
+
+    // await Future.delayed(const Duration(seconds: 1)); // Simulación ya no necesaria si el servicio responde
+
+    // Refrescar lista de tiendas (opcional si se usa en el home)
+    await tiendaServicio.getTienda(forceRefresh: true);
+    debugPrint("🟠 [NEW Tienda] notifier → ${tiendaServicio.tiendasNotifier.value?.length}");
+
+    debugPrint("🔄 ValueNotifier después de actualizar:");
     debugPrint(tiendaServicio.tiendasNotifier.value.toString());
-      await Future.delayed(const Duration(seconds: 2)); // Simulación
+
+    await Future.delayed(const Duration(seconds: 1)); // Pequeña pausa UX
+
     if (mounted) {
       setState(() => _isLoading = false);
       // Avanzar al paso final: CRÉDITO + CALCULADORA
-      // Pasamos clienteId y tiendaId (mapa de argumentos)
+      // Pasamos el ID de la tienda recién creada/validada
       context.push('/new-credit-financial',
-       extra: tiendaCreada.id,
-      /*, extra: {'clienteId': widget.clienteId, 'tiendaId': mockTiendaId}*/);
+        //extra: tiendaCreada.id,
+      );
     }
   }
 
@@ -74,25 +105,73 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FadeInLeft(child: const Text('¿Dónde estás comprando el equipo?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+              FadeInLeft(child: const Text('Validación del Vendedor', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
               const SizedBox(height: 20),
 
-              CustomTextField(label: 'Nombre de la Tienda', controller: _nombreTiendaCtrl, icon: Icons.store),
-              const SizedBox(height: 15),
-              //CustomTextField(label: 'Código de Tienda (QR)', controller: _codigoTiendaCtrl, icon: Icons.qr_code),
-              //const SizedBox(height: 15),
-              CustomTextField(label: 'Nombre Vendedor', controller: _encargadoCtrl, icon: Icons.person_pin),
-              const SizedBox(height: 15),
-              CustomTextField(label: 'Teléfono Tienda', controller: _telefonoTiendaCtrl, keyboardType: TextInputType.phone, icon: Icons.phone),
-              const SizedBox(height: 15),
-              CustomTextField(label: 'Dirección Tienda', controller: _direccionTiendaCtrl, icon: Icons.map),
+              // --- CAMPO CÉDULA ---
+              CustomTextField(
+                label: 'Cédula del Encargado/Vendedor',
+                controller: _cedulaEncargadoCtrl,
+                icon: Icons.badge,
+                keyboardType: TextInputType.number,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Requerido';
+                  if (v.length < 10) return 'Ingrese 10 dígitos';
+                  if (v.length > 10) return 'Ingrese 10 dígitos';
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 25),
+
+              // --- DROPDOWN COMISIÓN ---
+              const Text('Estado de la Comisión', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _estadoComision,
+                    isExpanded: true,
+                    icon: const Icon(Icons.monetization_on, color: Colors.green),
+                    items: _opcionesComision.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: value == 'Recibida' ? Colors.green : Colors.orange,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _estadoComision = newValue!;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 5, left: 5),
+                child: Text('Indica si ya se pagó la comisión.', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ),
 
               const SizedBox(height: 40),
+
               SizedBox(
                 width: double.infinity, height: 55,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _guardarTienda,
-                  child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('CONTINUAR A COTIZACIÓN'),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('CONTINUAR A COTIZACIÓN'),
                 ),
               ),
             ],

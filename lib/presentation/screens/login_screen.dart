@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
+//import 'package:url_launcher/url_launcher.dart'; // Opcional: si tienes el paquete instalado
 import '../widgets/custom_text_field.dart';
 import '../../models/login_dto.dart';
-import '../../services/auth_service.dart'; 
-// Asegúrate de crear este archivo
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,8 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => isLoading = false);
 
-    if (success!= null) {
-       print('Token JWT: ${success['token']}');
+    if (success != null) {
+      print('Token JWT: ${success['token']}');
       context.go('/home'); // Redirige a la pantalla principal
     } else {
       showDialog(
@@ -70,6 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+  }
+
+  // Función auxiliar para abrir web (Maquetada)
+  Future<void> _launchWeb() async {
+    final Uri url = Uri.parse('https://www.google.com');
+    // if (!await launchUrl(url)) { throw Exception('Could not launch $url'); }
+    debugPrint("Redirigiendo a: $url");
   }
 
   @override
@@ -109,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Inicia sesión para gestionar',
+                          'Inicia sesión para gestionar tu crédito',
                           style: TextStyle(
                               color: Colors.white.withOpacity(0.8),
                               fontSize: 16),
@@ -126,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
               duration: const Duration(milliseconds: 800),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
                 child: Column(
                   children: [
                     CustomTextField(
@@ -161,11 +168,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: isLoading ? null : _login,
                         child: isLoading
                             ? const CircularProgressIndicator(
-                                color: Colors.white)
+                            color: Colors.white)
                             : const Text(
-                                'INGRESAR',
-                                style: TextStyle(fontSize: 18),
-                              ),
+                          'INGRESAR',
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -184,6 +191,62 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+
+                    // --- SECCIÓN AGREGADA: SOPORTE Y WEB ---
+                    const SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Divider(color: Colors.grey.withOpacity(0.3)),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Centro de Ayuda",
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Opción Soporte Técnico
+                        InkWell(
+                          onTap: () {
+                            // Lógica para llamar
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                Icon(Icons.support_agent, color: theme.primaryColor, size: 28),
+                                const SizedBox(height: 5),
+                                const Text('Soporte Técnico', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                const Text('0987034477', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Opción Página Web
+                        InkWell(
+                          onTap: _launchWeb,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                Icon(Icons.language, color: theme.colorScheme.secondary, size: 28),
+                                const SizedBox(height: 5),
+                                const Text('Página Web', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                const Text('Ir al sitio', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // ---------------------------------------
+
                   ],
                 ),
               ),

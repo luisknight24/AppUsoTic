@@ -222,7 +222,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
 
-  File? _fotoCliente;
+  // File? _fotoCliente; // 📸 COMENTADO
   bool _isLoading = false;
 
   // Servicio para cargar datos
@@ -243,6 +243,9 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
       if (mounted) {
         setState(() {
           _nombreCtrl.text = cliente.nombreApellidos;
+          //_cedulaCtrl.text = cliente.cedula; // Asumiendo que traes la cédula
+          //_telefonoCtrl.text = cliente.telefono;
+          //_direccionCtrl.text = cliente.direccion;
         });
       }
     } catch (e) {
@@ -262,6 +265,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
   void _actualizarDatos() async {
     if (!_formKey.currentState!.validate()) return;
 
+    /* 📸 VALIDACIÓN DE FOTO COMENTADA
     if (_fotoCliente == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Debes subir tu Foto (Selfie) actualizada'),
@@ -269,6 +273,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
       ));
       return;
     }
+    */
 
     setState(() => _isLoading = true);
 
@@ -285,7 +290,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 20),
-              Text("Actualizando foto de perfil...", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Actualizando perfil...", style: TextStyle(fontWeight: FontWeight.bold)), // Texto ajustado
             ],
           ),
         ),
@@ -293,9 +298,12 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
     );
 
     try {
-      final firebaseService = FirebaseService();
+      // final firebaseService = FirebaseService(); // 📸 COMENTADO
       // 1. SUBIR FOTO
-      String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes');
+      // String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes'); // 📸 COMENTADO
+
+      // Simulación de tiempo si es necesario
+      await Future.delayed(const Duration(seconds: 1));
 
       if (mounted) Navigator.pop(context); // Cerrar diálogo
 
@@ -305,7 +313,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
-        fotoClienteUrl: urlCliente,
+        fotoClienteUrl: null, // urlCliente, // 📸 URL COMENTADA, PASAMOS NULL
       );
 
       // 3. ACTUALIZAR
@@ -342,6 +350,13 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
                 label: 'Cédula',
                 controller: _cedulaCtrl,
                 keyboardType: TextInputType.number,
+                //readOnly: true,
+                // ✅ VALIDACIÓN AGREGADA
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Requerido';
+                  if (value.length != 10) return 'Debe tener 10 dígitos';
+                  return null;
+                },
               ),
               const SizedBox(height: 15),
 
@@ -354,10 +369,22 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
               const SizedBox(height: 15),
 
               // --- CAMPOS EDITABLES ---
-              CustomTextField(label: 'Teléfono', controller: _telefonoCtrl, keyboardType: TextInputType.phone, icon: Icons.phone),
+              CustomTextField(
+                label: 'Teléfono',
+                controller: _telefonoCtrl,
+                keyboardType: TextInputType.phone,
+                icon: Icons.phone,
+                // ✅ VALIDACIÓN AGREGADA
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Requerido';
+                  if (value.length != 10) return 'Debe tener 10 dígitos';
+                  return null;
+                },
+              ),
               const SizedBox(height: 15),
               CustomTextField(label: 'Dirección', controller: _direccionCtrl, icon: Icons.location_on),
 
+              /* 📸 SECCIÓN FOTO COMENTADA
               const SizedBox(height: 30),
               FadeInDown(child: const Text('Evidencia de Identidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey))),
               const SizedBox(height: 15),
@@ -368,6 +395,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
                   child: PhotoUploadCard(label: 'Foto Cliente (Selfie) *', onImageSelected: (f) => _fotoCliente = f),
                 ),
               ),
+              */
 
               const SizedBox(height: 40),
               SizedBox(

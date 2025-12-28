@@ -1,49 +1,33 @@
 class TiendaDTO {
   int id;
-  String nombreTienda;
-  String nombreEncargado;
-  String telefono;
-  String direccion;
+  String cedulaEncargado;
+  String estadoDeComision; // "Recibida" o "Pendiente"
   DateTime? fechaRegistro;
-  int clienteId;
 
   TiendaDTO({
     this.id = 0,
-    required this.nombreTienda,
-    required this.nombreEncargado,
-    required this.telefono,
-    required this.direccion,
+    required this.cedulaEncargado,
+    required this.estadoDeComision,
     this.fechaRegistro,
-    this.clienteId = 0,
   });
 
-// ------------------- FROM JSON -------------------
+  // ------------------- FROM JSON -------------------
   factory TiendaDTO.fromJson(Map<String, dynamic> json) {
-    DateTime parseDate(dynamic date) {
-      if (date is String) return DateTime.parse(date);
-      if (date is int) return DateTime.fromMillisecondsSinceEpoch(date);
-      return DateTime.now();
-    }
-
     return TiendaDTO(
-      id: json['Id'] ?? 0,
-      nombreTienda: json['NombreTienda'] ?? '',
-      nombreEncargado: json['NombreEncargado'] ?? '',
-      telefono: json['Telefono'] ?? '',
-      direccion: json['Direccion'] ?? '',
-      fechaRegistro: parseDate(json['FechaRegistro']),
-      clienteId: json['ClienteId'] ?? 0,
+      id: json['id'] ?? 0,
+      cedulaEncargado: json['cedulaEncargado'] ?? '',
+      estadoDeComision: json['estadoDeComision'] ?? 'Pendiente',
+      fechaRegistro: json['fechaRegistro'] != null
+          ? DateTime.parse(json['fechaRegistro'])
+          : null,
     );
   }
 
   // ------------------- TO JSON -------------------
   Map<String, dynamic> toJson() => {
-        'Id': id,
-        'NombreTienda': nombreTienda,
-        'NombreEncargado': nombreEncargado,
-        'Telefono': telefono,
-        'Direccion': direccion,
- //       'FechaRegistro': fechaRegistro.toIso8601String(),
-        'ClienteId': clienteId,
-      };
+    'Id': id,
+    'CedulaEncargado': cedulaEncargado,
+    'EstadoDeComision': estadoDeComision,
+    'FechaRegistro': fechaRegistro?.toUtc().toIso8601String(),
+  };
 }

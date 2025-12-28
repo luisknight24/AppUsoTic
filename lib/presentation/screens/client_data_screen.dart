@@ -26,7 +26,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
 
-  File? _fotoCliente;
+  // File? _fotoCliente; // 📸 COMENTADO
   // SE ELIMINARON: _fotoCelular y _fotoContrato de esta pantalla
 
   @override
@@ -48,6 +48,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
       return;
     }
 
+    /* 📸 VALIDACIÓN DE FOTO COMENTADA
     // 2. Validar Foto Cliente (Única obligatoria aquí)
     if (_fotoCliente == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +59,9 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
       );
       return;
     }
+    */
 
+    /*
     // 3. Mostrar diálogo de carga
     setState(() => _isUploading = true);
 
@@ -78,7 +81,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
                 CircularProgressIndicator(),
                 SizedBox(height: 20),
                 Text(
-                  "Subiendo foto de perfil...",
+                  "Guardando datos...", // Texto ajustado
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -89,19 +92,27 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
       ),
     );
 
+
+     */
+
     try {
-      final firebaseService = FirebaseService();
+      // final firebaseService = FirebaseService(); // 📸 COMENTADO
 
       // 4. Subir SOLO foto cliente
-      final String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes');
+      // final String? urlCliente = await firebaseService.uploadImage(_fotoCliente!, 'clientes'); // 📸 COMENTADO
+
+
+      //await Future.delayed(const Duration(seconds: 0)); // Simulación
 
       // Cerrar diálogo
-      if (mounted) Navigator.pop(context);
-      setState(() => _isUploading = false);
+      //if (mounted) Navigator.pop(context);
+      //setState(() => _isUploading = false);
 
+      /* 📸 VALIDACIÓN URL COMENTADA
       if (urlCliente == null) {
         throw Exception("Error al subir la imagen.");
       }
+      */
 
       // 5. Crear DTO Limpio
       final detalle = DetalleClienteDTO(
@@ -109,7 +120,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
-        fotoClienteUrl: urlCliente,
+        fotoClienteUrl: null, // urlCliente, // 📸 URL COMENTADA
         // fotoCelularEntregadoUrl y fotoContrato ya no van aquí
       );
 
@@ -124,11 +135,12 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
       // 8. Navegar
       if (mounted) context.push('/store-data');
 
-    } catch (e) {
-      if (mounted) Navigator.pop(context);
-      setState(() => _isUploading = false);
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+    }
+    catch (e) {
+      //if (mounted) Navigator.pop(context);
+      //setState(() => _isUploading = false);
+      //print("Error: $e");
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     }
   }
 
@@ -152,10 +164,11 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
               const SizedBox(height: 15),
               CustomTextField(label: 'Nombres y Apellidos', controller: _nombreCtrl, icon: Icons.person, validator: (v) => v!.isEmpty ? 'Requerido' : null),
               const SizedBox(height: 15),
-              CustomTextField(label: 'Teléfono', controller: _telefonoCtrl, keyboardType: TextInputType.phone, icon: Icons.phone, validator: (v) => (v!.isEmpty || v.length != 10) ? '10 dígitos' : null),
+              CustomTextField(label: 'Teléfono', controller: _telefonoCtrl, keyboardType: TextInputType.phone, icon: Icons.phone, validator: (v) => (v!.isEmpty || v.length != 10) ? 'Debe ingresar 10 dígitos' : null),
               const SizedBox(height: 15),
               CustomTextField(label: 'Dirección / Sector', controller: _direccionCtrl, icon: Icons.location_on, validator: (v) => v!.isEmpty ? 'Requerido' : null),
 
+              /* 📸 SECCIÓN FOTO COMENTADA
               const SizedBox(height: 30),
               const Text('Evidencia de Identidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 15),
@@ -167,6 +180,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
                   child: PhotoUploadCard(label: 'Foto del cliente', onImageSelected: (f) => _fotoCliente = f),
                 ),
               ),
+              */
 
               const SizedBox(height: 40),
               SizedBox(width: double.infinity, height: 55, child: ElevatedButton(onPressed: _onNextPressed, child: const Text('SIGUIENTE: DATOS TIENDA'))),

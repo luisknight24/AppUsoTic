@@ -345,6 +345,7 @@ class CreditSummaryCard extends StatelessWidget {
             ],
           ),
 
+          /*
           const SizedBox(height: 15),
           Divider(color: Colors.white.withOpacity(0.2)),
           const SizedBox(height: 10),
@@ -376,6 +377,9 @@ class CreditSummaryCard extends StatelessWidget {
               ),
             ],
           ),
+
+
+           */
 
           const SizedBox(height: 15),
 

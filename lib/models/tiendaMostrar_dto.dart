@@ -1,26 +1,19 @@
 class tiendaMostrar_dto {
-  int id;
-   String nombreEncargado;
-    String telefono;
-  int clienteId;
-
+  final int id;
+  final String fechaRegistroStr;
+  final int clienteId;
 
   tiendaMostrar_dto({
     required this.id,
-    required this.nombreEncargado,
-     required this.telefono,
+    required this.fechaRegistroStr,
     required this.clienteId,
- 
   });
 
   factory tiendaMostrar_dto.fromJson(Map<String, dynamic> json) {
-  return tiendaMostrar_dto(
-    id: json["id"] ?? 0,
-    nombreEncargado: json['nombreEncargado'] ?? '',
-     telefono: json['telefono'] ?? '',
-    clienteId: (json["clienteId"] ?? 0).toInt(),  
-  
-  );
-}
-
+    return tiendaMostrar_dto(
+      id: json['id'] ?? json['Id'] ?? 0,
+      fechaRegistroStr: json['fechaRegistroStr'] ?? json['FechaRegistroStr'] ?? '',
+      clienteId: json['clienteId'] ?? json['ClienteId'] ?? 0,
+    );
+  }
 }

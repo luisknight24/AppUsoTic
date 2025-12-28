@@ -33,6 +33,9 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   final _cuotasCtrl = TextEditingController();
   final _marcaCtrl = TextEditingController();
   final _modeloCtrl = TextEditingController();
+  // NUEVO: Controlador IMEI
+  final _imeiCtrl = TextEditingController();
+
   String _frecuencia = 'Semanal';
   DateTime _fechaPago = DateTime.now();
 
@@ -40,9 +43,13 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   double _valorCuota = 0;
   DateTime _proximaCuota = DateTime.now();
 
+  // NUEVO: Variable para Tipo de Producto
+  String _tipoProducto = 'Teléfono';
+  final List<String> _tiposProducto = ['Teléfono', 'Televisor'];
+
   // VARIABLES PARA LAS FOTOS
-  File? _fotoContrato;
-  File? _fotoCelular;
+  // File? _fotoContrato; // 📸 COMENTADO
+  // File? _fotoCelular;  // 📸 COMENTADO
   bool _isUploading = false;
 
   @override
@@ -63,6 +70,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _precioCtrl.dispose(); _entradaCtrl.dispose(); _cuotasCtrl.dispose();
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
+    _imeiCtrl.dispose(); // Dispose IMEI
     super.dispose();
   }
 
@@ -103,21 +111,37 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       return;
     }
 
-    // --- VALIDACIÓN DE CUOTAS (NUEVO) ---
+    // --- VALIDACIÓN DE CUOTAS DINÁMICA ---
     final int cuotasIngresadas = int.tryParse(_cuotasCtrl.text) ?? 0;
-    if (cuotasIngresadas > 24) {
+    int maxCuotas = 24; // Default Mensual
+
+    if (_frecuencia == 'Semanal') maxCuotas = 52;
+    if (_frecuencia == 'Quincenal') maxCuotas = 48;
+    if (_frecuencia == 'Mensual') maxCuotas = 24;
+
+    if (cuotasIngresadas > maxCuotas) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('El plazo máximo es de 24 cuotas'), backgroundColor: Colors.red)
+          SnackBar(content: Text('Para $_frecuencia el máximo es $maxCuotas cuotas'), backgroundColor: Colors.red)
       );
       return;
     }
     // ------------------------------------
 
+    // VALIDAR IMEI SI ES TELÉFONO
+    if (_tipoProducto == 'Teléfono' && _imeiCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El IMEI es requerido para teléfonos'), backgroundColor: Colors.red));
+      return;
+    }
+
+    // ------------------------------------
+
+    /* 📸 VALIDACIÓN DE FOTOS COMENTADA
     // 1. VALIDAR FOTOS
     if (_fotoContrato == null || _fotoCelular == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Debes subir fotos de Contrato y Celular'), backgroundColor: Colors.red));
       return;
     }
+    */
 
     // Guardar crédito en Provider
 
@@ -131,21 +155,28 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: const Padding(
           padding: EdgeInsets.all(20),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 20), Text("Subiendo evidencias...", style: TextStyle(fontWeight: FontWeight.bold))]),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text("Procesando solicitud...", style: TextStyle(fontWeight: FontWeight.bold))
+          ]),
         ),
       ),
     );
 
     try {
-      final firebaseService = FirebaseService();
+      // final firebaseService = FirebaseService(); // 📸 COMENTADO
 
       // 2. SUBIR EVIDENCIAS
-      String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos');
-      String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares');
+      // String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos'); // 📸 COMENTADO
+      // String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares');   // 📸 COMENTADO
 
+      /* 📸 VALIDACIÓN URL COMENTADA
       if (urlContrato == null || urlCelular == null) throw Exception("Error al subir evidencias");
+      */
 
-      if (mounted) Navigator.pop(context); // Cierra loading de fotos
+      // 🚨 CAMBIO: ELIMINADO EL Navigator.pop(context) TEMPRANO
+      // if (mounted) Navigator.pop(context); // <--- ESTE SE ELIMINÓ
 
       // 3. CREAR DTO
       final credito = CreditoDTO(
@@ -165,9 +196,12 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         estadoCuota: "Pendiente",
         abonadoTotal: 0.0,
         // ASIGNAMOS LAS URLS
-        fotoContratoUrl: urlContrato,
-        fotoCelularUrl: urlCelular,
+        fotoContratoUrl: null, // urlContrato, // 📸 URL COMENTADA
+        fotoCelularUrl: null,  // urlCelular,  // 📸 URL COMENTADA
 
+        // NUEVOS CAMPOS PRODUCTO
+        tipoProducto: _tipoProducto,
+        imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
       );
 
       final registerProvider = context.read<RegisterProvider>();
@@ -178,6 +212,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       final correoUser = usuarioFinal.correo;
 
       if (correoUser == null || correoUser.isEmpty) {
+        if (mounted) Navigator.pop(context); // Cerrar loading si hay error
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Correo no disponible')));
         return;
@@ -185,6 +220,9 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
 
       final validarCuenta = ValidarCuenta();
       final enviado = await validarCuenta.enviarCodigoCompleto(usuarioFinal);
+
+      // 🚨 CAMBIO: AHORA CERRAMOS EL LOADING AQUÍ, AL FINAL
+      if (mounted) Navigator.pop(context);
 
       setState(() => _isUploading = false);
 
@@ -229,18 +267,43 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             ),
             const SizedBox(height: 20),
 
+            // --- NUEVO: TIPO PRODUCTO Y MARCA ---
             Row(
               children: [
-                Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Tipo Producto', border: OutlineInputBorder()),
+                    value: _tipoProducto,
+                    items: _tiposProducto.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                    onChanged: (val) {
+                      setState(() => _tipoProducto = val!);
+                    },
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
+                Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+              ],
+            ),
+            const SizedBox(height: 15),
+
+            // --- NUEVO: MODELO Y IMEI (CONDICIONAL) ---
+            Row(
+              children: [
+                // ✏️ CAMBIO ESTÉTICO: Ícono más general
+                Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.devices)),
+                // Mostrar IMEI solo si es Teléfono
+                if (_tipoProducto == 'Teléfono') ...[
+                  const SizedBox(width: 10),
+                  Expanded(child: CustomTextField(label: 'IMEI', controller: _imeiCtrl, icon: Icons.qr_code)),
+                ]
               ],
             ),
 
             const SizedBox(height: 15),
 
             // --- CAMPOS ---
-            CustomTextField(label: 'Precio Equipo (Total)', controller: _precioCtrl, keyboardType: TextInputType.number, icon: Icons.smartphone),
+            // ✏️ CAMBIO ESTÉTICO: Ícono más general
+            CustomTextField(label: 'Precio Equipo (Total)', controller: _precioCtrl, keyboardType: TextInputType.number, icon: Icons.monetization_on_outlined),
             const SizedBox(height: 15),
             CustomTextField(label: 'Entrada (Pago Inicial)', controller: _entradaCtrl, keyboardType: TextInputType.number, icon: Icons.monetization_on),
             const SizedBox(height: 15),
@@ -262,8 +325,10 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
               onTap: _seleccionarFecha,
             ),
 
-            // --- SECCIÓN EVIDENCIAS (NUEVO) ---
             const SizedBox(height: 30),
+
+            /* 📸 SECCIÓN EVIDENCIAS COMENTADA
+            // --- SECCIÓN EVIDENCIAS (NUEVO) ---
             const Divider(),
             const Text("EVIDENCIA DIGITAL", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
             const SizedBox(height: 15),
@@ -274,6 +339,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
                 Expanded(child: PhotoUploadCard(label: 'Foto Celular *', onImageSelected: (f) => _fotoCelular = f)),
               ],
             ),
+            */
 
             const SizedBox(height: 40),
             SizedBox(

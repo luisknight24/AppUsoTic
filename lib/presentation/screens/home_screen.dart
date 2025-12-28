@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/credito_dto.dart';
-import '../../models/tienda_dto.dart';
+// import '../../models/tienda_dto.dart'; // 🏪 COMENTADO: Tienda
 import '../../models/CreditoMostrarDTO.dart';
 import '../widgets/credit_summary_card.dart';
 import '../widgets/side_menu.dart';
 import '../../services/creditoMostrarHome.dart';
-import '../../services/tiendaService.dart';
-import '../../models/tiendaMostrar_dto.dart';
+// import '../../services/tiendaService.dart'; // 🏪 COMENTADO: Tienda
+// import '../../models/tiendaMostrar_dto.dart'; // 🏪 COMENTADO: Tienda
 import '../../services/usuario_service.dart';
 import '../../models/ClienteMostrarDTO.dart';
 import '../../services/location_service.dart';
@@ -16,6 +16,7 @@ import 'new_credit_request_screen.dart';
 
 import '../../services/notificacion_service.dart';
 import '../../models/notificacion_dto.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -31,8 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<void> _futureCreditos1;
   final NotificacionService _notificacionService = NotificacionService();
 
+  /* 🏪 COMENTADO: Variables de Tienda
   final TiendaService _tiendaService = TiendaService();
   late Future<List<tiendaMostrar_dto>> _Tiendas;
+  */
   //late Future<void> _Tiendas1;
 
   final UsuarioService _clienteService = UsuarioService();
@@ -43,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //final String _nombreUsuario = "aszcsz";
   final String _emailUsuario = "luis@ejemplo.com";
 
+  /* 🏪 COMENTADO: Mock de Tienda
   final TiendaDTO _tiendaMock = TiendaDTO(
     nombreTienda: "Celulares El Centro",
     nombreEncargado: "Luis",
@@ -50,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     direccion: "Av. Principal 123",
     //  fechaRegistro: DateTime.now(),
   );
+  */
   // final creditoServicio = creditoMostrarHome();
   int _cantidadNotificaciones = 0;
   @override
@@ -59,11 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
       "🔵 [HOME] usando instancia → hash: ${_creditoService.hashCode}",
     );
 
-    _Tiendas = _tiendaService.getTienda();
+    // _Tiendas = _tiendaService.getTienda(); // 🏪 COMENTADO: Carga inicial Tienda
     _futureClientes = _clienteService.getCliente();
 
     debugPrint("🏠 [HOME] carga inicial créditos");
-   // _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
+    // _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
     //_creditoService.connectSignalR();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     _futureCreditos1 = _creditoService.getCreditos(); // carga inicial
     _creditoService.connectSignalR();
-  _notificacionService.connectSignalR(); 
+    _notificacionService.connectSignalR();
     // 🔴 CARGAR NOTIFICACIONES AL INICIO
     _cargarNotificaciones();
 
@@ -87,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
   Future<void> _cargarNotificaciones() async {
     try {
-debugPrint("🔵 [HOME] Iniciando notificaciones...");
-     // await _notificacionService.connectSignalR();
+      debugPrint("🔵 [HOME] Iniciando notificaciones...");
+      // await _notificacionService.connectSignalR();
       debugPrint("✅ [HOME] SignalR de notificaciones conectado");
       final notificaciones = await _notificacionService.getNotificaciones();
       _notificacionService.notificacionesNotifier.value = notificaciones;
@@ -110,10 +115,12 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
     await _futureCreditos1;
   }
 
+  /* 🏪 COMENTADO: Función Refrescar Tienda
   Future<void> _refreshTienda() async {
     _Tiendas = _tiendaService.getTienda();
     await _Tiendas;
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +132,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
         backgroundColor: theme.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-             // 🔴 BADGE REACTIVO CON ValueListenableBuilder
+          // 🔴 BADGE REACTIVO CON ValueListenableBuilder
           ValueListenableBuilder<List<NotificacionDTO>?>(
             valueListenable: _notificacionService.notificacionesNotifier,
             builder: (context, notificaciones, child) {
@@ -240,7 +247,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
                       const SizedBox(height: 20),
                       _NewCreditRequestCard(
                         isPaid:
-                            true, // Si no hay créditos, se asume que puede solicitar
+                        true, // Si no hay créditos, se asume que puede solicitar
                         onTap: () async {
                           context.push('/new-credit-request');
 
@@ -267,7 +274,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
                         //  context.push('/new-credit-request');
                         await context.push('/new-credit-request');
                         await _refreshCreditos();
-                        await _refreshTienda();
+                        // await _refreshTienda(); // 🏪 COMENTADO: Refrescar Tienda
                       },
                     ),
                   ],
@@ -277,6 +284,7 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
 
             const SizedBox(height: 30),
 
+            /* 🏪 COMENTADO: SECCIÓN VISUAL DE TIENDA
             // 3. Sección Tienda
             FadeInUp(
               child: Text(
@@ -397,17 +405,17 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
             ),
 
             const SizedBox(height: 30),
+            */
 
             // 4. Accesos Rápidos (Opcional pero útil)
             FadeInUp(
               delay: const Duration(milliseconds: 300),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                /*
                 children: [
                   _QuickActionBtn(
-                    icon: Icons.receipt_long,
-                    label: 'Historial',
+                    icon: Icons.web,
+                    label: 'Página web',
                     color: Colors.blue,
                     onTap: () {},
                   ),
@@ -418,12 +426,14 @@ debugPrint("🔵 [HOME] Iniciando notificaciones...");
                     onTap: () {},
                   ),
                   _QuickActionBtn(
-                    icon: Icons.qr_code,
-                    label: 'Mi QR',
+                    icon: Icons.receipt_long,
+                    label: 'Historial de pagos',
                     color: Colors.teal,
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/payment-history');
+                    },
                   ),
-                ],*/
+                ],
               ),
             ),
           ],
@@ -501,12 +511,12 @@ class _NewCreditRequestCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             boxShadow: isPaid
                 ? [
-                    BoxShadow(
-                      color: theme.primaryColor.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
+              BoxShadow(
+                color: theme.primaryColor.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ]
                 : null,
           ),
           child: Row(

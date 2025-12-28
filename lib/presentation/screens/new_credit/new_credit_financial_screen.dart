@@ -32,12 +32,19 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   final _plazoCtrl = TextEditingController();
   final _marcaCtrl = TextEditingController();
   final _modeloCtrl = TextEditingController();
+  // NUEVO: Controlador IMEI
+  final _imeiCtrl = TextEditingController();
+
   DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
 
+  // NUEVO: Variable para Tipo de Producto
+  String _tipoProducto = 'Teléfono';
+  final List<String> _tiposProducto = ['Teléfono', 'Televisor'];
+
   // VARIABLES DE EVIDENCIA (Contrato y Celular)
-  File? _fotoContrato;
-  File? _fotoCelular;
+  // File? _fotoContrato; // 📸 COMENTADO
+  // File? _fotoCelular;  // 📸 COMENTADO
 
   bool _isLoading = false;
 
@@ -66,6 +73,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _plazoCtrl.dispose();
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
+    _imeiCtrl.dispose(); // Dispose IMEI
     super.dispose();
   }
   // NUEVO: Variable para el combo de cuotas
@@ -103,6 +111,13 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       return;
     }
 
+    // VALIDAR IMEI SI ES TELÉFONO
+    if (_tipoProducto == 'Teléfono' && _imeiCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El IMEI es requerido para teléfonos'), backgroundColor: Colors.red));
+      return;
+    }
+
+    /* 📸 VALIDACIÓN DE FOTOS COMENTADA
     // VALIDACIÓN DE EVIDENCIAS (NUEVO)
     if (_fotoContrato == null || _fotoCelular == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,6 +125,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       );
       return;
     }
+    */
 
     setState(() => _isLoading = true);
 
@@ -122,28 +138,28 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: const Padding(
           padding: EdgeInsets.all(20),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 20), Text("Subiendo evidencias...", style: TextStyle(fontWeight: FontWeight.bold))]),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text("Procesando solicitud...", style: TextStyle(fontWeight: FontWeight.bold))
+          ]),
         ),
       ),
     );
 
     try {
-      final firebaseService = FirebaseService();
+      // final firebaseService = FirebaseService(); // 📸 COMENTADO
 
       // 1. SUBIR EVIDENCIAS
-      String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos_nuevos');
-      String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares_nuevos');
+      // String? urlContrato = await firebaseService.uploadImage(_fotoContrato!, 'contratos_nuevos'); // 📸 COMENTADO
+      // String? urlCelular = await firebaseService.uploadImage(_fotoCelular!, 'celulares_nuevos');   // 📸 COMENTADO
 
       // Simulación
       await Future.delayed(const Duration(seconds: 2));
 
 
-      //if (mounted) Navigator.pop(context); // Cierra loading fotos
-
-      // Cerrar loading UNA sola vez
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
+      // 🚨 CAMBIO: ELIMINADO EL Navigator.pop(context) TEMPRANO
+      // if (mounted && Navigator.canPop(context)) { ... }
 
       // 2. CREAR DTO
       final credito = CreditoDTO(
@@ -165,10 +181,13 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         modelo: _modeloCtrl.text,
         estadoCuota: "Pendiente",
         abonadoTotal: 0.0,
-        // Nuevos campos
-        fotoContratoUrl: urlContrato,
-        fotoCelularUrl: urlCelular,
+        // Nuevos campos Foto
+        fotoContratoUrl: null, // urlContrato, // 📸 URL COMENTADA
+        fotoCelularUrl: null,  // urlCelular,  // 📸 URL COMENTADA
 
+        // NUEVOS CAMPOS PRODUCTO
+        tipoProducto: _tipoProducto,
+        imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
       );
       //final CreditoServicio = creditoMostrarHome();
 
@@ -191,6 +210,9 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
       debugPrint(creditoHomeService.creditosNotifier.value.toString());
       await Future.delayed(const Duration(seconds: 2)); // Simulación
 
+      // 🚨 CAMBIO: AHORA CERRAMOS EL LOADING AQUÍ, AL FINAL
+      if (mounted) Navigator.pop(context);
+
       if (mounted) {
         debugPrint('🟢 BEFORE setState éxito');
         setState(() => _isLoading = false);
@@ -208,7 +230,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
 
       if (mounted) {
         debugPrint('↩️ Navigator.pop en catch');
-        Navigator.pop(context);
+        Navigator.pop(context); // Cierra loading si hay error
       } else {
         debugPrint('⚠️ Widget no montado, no pop');
       }
@@ -303,21 +325,48 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // --- NUEVO: TIPO PRODUCTO Y MARCA ---
               Row(
                 children: [
-                  Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: 'Tipo Producto', border: OutlineInputBorder()),
+                      value: _tipoProducto,
+                      items: _tiposProducto.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                      onChanged: (val) {
+                        setState(() => _tipoProducto = val!);
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.phone_android)),
+                  Expanded(child: CustomTextField(label: 'Marca', controller: _marcaCtrl, icon: Icons.branding_watermark)),
+                ],
+              ),
+
+              const SizedBox(height: 15),
+
+              // --- NUEVO: MODELO Y IMEI (CONDICIONAL) ---
+              Row(
+                children: [
+                  // ✏️ CAMBIO ESTÉTICO: Ícono más general
+                  Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.devices)),
+                  // Mostrar IMEI solo si es Teléfono
+                  if (_tipoProducto == 'Teléfono') ...[
+                    const SizedBox(width: 10),
+                    Expanded(child: CustomTextField(label: 'IMEI', controller: _imeiCtrl, icon: Icons.qr_code)),
+                  ]
                 ],
               ),
 
               const SizedBox(height: 15),
               // --- CAMPOS ---
+              // ✏️ CAMBIO ESTÉTICO: Ícono más general
               CustomTextField(
                 label: 'Precio Equipo (\$)',
                 controller: _montoCtrl,
                 keyboardType: TextInputType.number,
-                icon: Icons.attach_money,
+                icon: Icons.monetization_on_outlined,
                 validator: (v) => v!.isEmpty ? 'Requerido' : null,
               ),
               const SizedBox(height: 15),
@@ -338,14 +387,21 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                       controller: _plazoCtrl,
                       keyboardType: TextInputType.number,
                       icon: Icons.calendar_today,
-                      // --- VALIDACIÓN DE CUOTAS ---
+                      // --- VALIDACIÓN DE CUOTAS DINÁMICA ---
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Requerido';
                         final val = int.tryParse(v);
-                        if (val != null && val > 24) return 'Máx 24 cuotas';
+                        if (val == null) return 'Inválido';
+
+                        int max = 24; // Default Mensual
+                        if (_frecuenciaSeleccionada == 'Semanal') max = 52;
+                        if (_frecuenciaSeleccionada == 'Quincenal') max = 48;
+                        if (_frecuenciaSeleccionada == 'Mensual') max = 24;
+
+                        if (val > max) return 'Máx $max cuotas';
                         return null;
                       },
-                      // ----------------------------
+                      // ------------------------------------
                     ),
 
 // 4. CAMBIO: DROPDOWN DE CUOTAS
@@ -369,6 +425,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
 
               const SizedBox(height: 30),
 
+              /* 📸 SECCIÓN EVIDENCIAS COMENTADA
               // --- SECCIÓN EVIDENCIAS (NUEVO) ---
               const Divider(),
               const Text("EVIDENCIA DIGITAL", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
@@ -381,6 +438,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                   Expanded(child: PhotoUploadCard(label: 'Celular Nuevo *', onImageSelected: (f) => _fotoCelular = f)),
                 ],
               ),
+              */
 
               const SizedBox(height: 50),
 
