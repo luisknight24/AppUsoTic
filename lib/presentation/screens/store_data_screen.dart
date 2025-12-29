@@ -83,7 +83,7 @@ class _StoreDataScreenState extends State<StoreDataScreen> {
     }
 
     // 2. SI EXISTE, CREAR DTO Y AVANZAR
-    final tienda = TiendaDTO(
+    final tienda = TiendaAppDTO(
       cedulaEncargado: _cedulaEncargadoCtrl.text,
       estadoDeComision: _estadoComision,
       fechaRegistro: DateTime.now(), // Se enviará al crear

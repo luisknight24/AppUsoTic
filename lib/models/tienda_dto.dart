@@ -1,10 +1,10 @@
-class TiendaDTO {
+class TiendaAppDTO {
   int id;
   String cedulaEncargado;
   String estadoDeComision; // "Recibida" o "Pendiente"
   DateTime? fechaRegistro;
 
-  TiendaDTO({
+  TiendaAppDTO({
     this.id = 0,
     required this.cedulaEncargado,
     required this.estadoDeComision,
@@ -12,8 +12,8 @@ class TiendaDTO {
   });
 
   // ------------------- FROM JSON -------------------
-  factory TiendaDTO.fromJson(Map<String, dynamic> json) {
-    return TiendaDTO(
+  factory TiendaAppDTO.fromJson(Map<String, dynamic> json) {
+    return TiendaAppDTO(
       id: json['id'] ?? 0,
       cedulaEncargado: json['cedulaEncargado'] ?? '',
       estadoDeComision: json['estadoDeComision'] ?? 'Pendiente',

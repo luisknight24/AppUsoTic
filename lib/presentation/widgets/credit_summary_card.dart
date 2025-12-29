@@ -282,6 +282,16 @@ class CreditSummaryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
+                      const Text('FECHA DE VENTA', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${credito.fechaCreditoStr}',
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
                     const Text('TU DISPOSITIVO', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                     const SizedBox(height: 2),
                     Text(
@@ -290,6 +300,16 @@ class CreditSummaryCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+
+
+                                      // 🎯 SOLO AGREGAR ESTO
+                  const SizedBox(height: 4),
+                  const Text('Cuotas pagadas/Total de cuotas', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    const SizedBox(height: 2),
+                  Text(
+                    credito.progresoCuotas, // "2/12"
+                    style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
                   ],
                 ),
               ),
@@ -328,7 +348,7 @@ class CreditSummaryCard extends StatelessWidget {
                 value: '\$${credito.abonadoCuota.toStringAsFixed(2)}',
                 icon: Icons.price_check, // Icono diferente para distinguir
               ),
-              Column(
+             /* Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text('Estado Cuota', style: TextStyle(color: Colors.white70, fontSize: 11)),
@@ -341,7 +361,7 @@ class CreditSummaryCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ),*/
             ],
           ),
 

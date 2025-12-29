@@ -14,9 +14,10 @@ class CreditoMostrarDTO {
   final double abonadoTotal;
   final double abonadoCuota;
   final String estadoCuota;
+  final String? fechaCreditoStr;
   final int clienteId;
   final int? tiendaId;
-   final tiendaMostrar_dto? tienda;
+   final TiendaMostrarAppVentaDTO? tienda;
 
   CreditoMostrarDTO({
     required this.id,
@@ -32,9 +33,40 @@ class CreditoMostrarDTO {
     required this.abonadoTotal,
     required this.abonadoCuota,
     required this.estadoCuota,
+    this.fechaCreditoStr,
+
     this.tiendaId,
     this.tienda,
   });
+
+
+
+  // 🎯 GETTERS CALCULADOS PARA CUOTAS
+  
+  /// Calcula cuántas cuotas completas se han pagado
+
+  int get cuotasPagadas {
+    if (valorPorCuota <= 0) return 0;
+    return (abonadoTotal / valorPorCuota).floor();
+  }
+
+  /// Retorna el formato "2/12"
+  String get progresoCuotas {
+    return '$cuotasPagadas/$plazoCuotas';
+  }
+
+  /// Porcentaje de cuotas completadas (0-100)
+  double get porcentajeCuotasCompletadas {
+    if (plazoCuotas <= 0) return 0;
+    return (cuotasPagadas / plazoCuotas).clamp(0.0, 1.0);
+  }
+
+  /// Cuotas restantes por pagar
+  int get cuotasRestantes {
+    return plazoCuotas - cuotasPagadas;
+  }
+
+  
 
   factory CreditoMostrarDTO.fromJson(Map<String, dynamic> json) {
   return CreditoMostrarDTO(
@@ -46,16 +78,17 @@ class CreditoMostrarDTO {
     valorPorCuota: (json["valorPorCuota"] ?? 0).toDouble(),
     estado: json["estado"] ?? "",
     clienteId: (json["clienteId"] ?? 0).toInt(),
-    tiendaId: (json["tiendaId"]?? 0).toInt(),
+    tiendaId: (json["tiendaAppId"]?? 0).toInt(),
       // 🔥 AQUÍ está la clave
-      tienda: json['tienda'] != null
-          ? tiendaMostrar_dto.fromJson(json['tienda'])
+      tienda: json['tiendaApp'] != null
+          ? TiendaMostrarAppVentaDTO.fromJson(json['tiendaApp'])
           : null,
     marca: json['marca'] ?? '',
     modelo: json['modelo'] ?? '',
     abonadoTotal: (json['abonadoTotal'] ?? 0).toDouble(),
     abonadoCuota: (json['abonadoCuota'] ?? 0).toDouble(),
     estadoCuota: json['estadoCuota'] ?? '',
+    fechaCreditoStr: json['fechaCreditoStr'],
 
   );
 }
@@ -66,7 +99,7 @@ class CreditoMostrarDTO {
     double? montoPendiente,
     String? proximaCuotaStr,
     String? estado,
-    tiendaMostrar_dto? tienda,
+    TiendaMostrarAppVentaDTO? tienda,
   }) {
     return CreditoMostrarDTO(
       id: this.id,
@@ -84,7 +117,7 @@ class CreditoMostrarDTO {
       abonadoTotal: this.abonadoTotal,
       abonadoCuota: this.abonadoCuota,
       estadoCuota: this.estadoCuota,
-      
+      fechaCreditoStr: this.fechaCreditoStr,
     );
   }
 

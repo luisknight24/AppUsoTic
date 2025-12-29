@@ -12,10 +12,9 @@ import '../../../services/firebase_service.dart'; // Importar
 
 class NewCreditFinancialScreen extends StatefulWidget {
   //final int clienteId;
-  final int tiendaId;
+  final int tiendaAppId;
 
-  const NewCreditFinancialScreen({super.key, required this.tiendaId,
-    /*, required this.clienteId, required this.tiendaId*/});
+  const NewCreditFinancialScreen({super.key, required this.tiendaAppId});
 
   @override
   State<NewCreditFinancialScreen> createState() => _NewCreditFinancialScreenState();
@@ -175,7 +174,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         proximaCuota: _proximaCuota,
         proximaCuotaStr: DateFormat('yyyy-MM-dd').format(_proximaCuota),
         estado: "Pendiente",
-        tiendaId: widget.tiendaId,
+        tiendaAppId: widget.tiendaAppId,
         fechaCreacion: DateTime.now().toUtc(),
         marca: _marcaCtrl.text,
         modelo: _modeloCtrl.text,

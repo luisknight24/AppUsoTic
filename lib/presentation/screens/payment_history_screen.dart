@@ -4,19 +4,29 @@ import '../../services/historial_service.dart';
 import '../../models/HistoriaAppDTO.dart';
 
 class PaymentHistoryScreen extends StatefulWidget {
-  const PaymentHistoryScreen({super.key});
+  final int creditoId;
+  const PaymentHistoryScreen({super.key,required this.creditoId});
 
   @override
   State<PaymentHistoryScreen> createState() => _PaymentHistoryScreenState();
 }
 
 class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
+
+  
   final HistorialService _historialService = HistorialService();
 
   @override
   void initState() {
     super.initState();
-    _historialService.getHistorialPagos();
+   _historialService.getHistorialPagos(creditoId: widget.creditoId);
+
+
+    
+    // 2. Conectamos SignalR para escuchar actualizaciones en tiempo real
+    _historialService.connectSignalR();
+
+  
   }
 
   @override

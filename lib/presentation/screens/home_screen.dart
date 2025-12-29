@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/credito_dto.dart';
-// import '../../models/tienda_dto.dart'; // 🏪 COMENTADO: Tienda
+ import '../../models/tienda_dto.dart'; // 🏪 COMENTADO: Tienda
 import '../../models/CreditoMostrarDTO.dart';
 import '../widgets/credit_summary_card.dart';
 import '../widgets/side_menu.dart';
 import '../../services/creditoMostrarHome.dart';
-// import '../../services/tiendaService.dart'; // 🏪 COMENTADO: Tienda
-// import '../../models/tiendaMostrar_dto.dart'; // 🏪 COMENTADO: Tienda
+ import '../../services/tiendaService.dart'; // 🏪 COMENTADO: Tienda
+import '../../models/tiendaMostrar_dto.dart'; // 🏪 COMENTADO: Tienda
 import '../../services/usuario_service.dart';
 import '../../models/ClienteMostrarDTO.dart';
 import '../../services/location_service.dart';
@@ -32,10 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<void> _futureCreditos1;
   final NotificacionService _notificacionService = NotificacionService();
 
-  /* 🏪 COMENTADO: Variables de Tienda
   final TiendaService _tiendaService = TiendaService();
-  late Future<List<tiendaMostrar_dto>> _Tiendas;
-  */
+  late Future<List<TiendaMostrarAppVentaDTO>> _Tiendas;
+  
   //late Future<void> _Tiendas1;
 
   final UsuarioService _clienteService = UsuarioService();
@@ -115,12 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
     await _futureCreditos1;
   }
 
-  /* 🏪 COMENTADO: Función Refrescar Tienda
+  // 🏪 COMENTADO: Función Refrescar Tienda
   Future<void> _refreshTienda() async {
     _Tiendas = _tiendaService.getTienda();
     await _Tiendas;
   }
-  */
+  
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(color: Colors.white)),
+        title: const Text('Crédito de CellCompany', style: TextStyle(color: Colors.white)),
         backgroundColor: theme.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -233,12 +232,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ValueListenableBuilder<List<CreditoMostrarDTO>?>(
               valueListenable: _creditoService.creditosNotifier,
+
+
               builder: (context, creditos, _) {
+
+                
                 // Cargando
                 if (creditos == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
+              final creditoMostrado = creditos.first;
                 // 🔥 CASO: NO TIENE CRÉDITOS → PUEDE SOLICITAR
                 if (creditos.isEmpty) {
                   return Column(
@@ -277,6 +280,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         // await _refreshTienda(); // 🏪 COMENTADO: Refrescar Tienda
                       },
                     ),
+
+
+FadeInUp(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                         
+                          _QuickActionBtn(
+                            icon: Icons.receipt_long,
+                            label: 'Historial',
+                            color: Colors.teal,
+                            onTap: () {
+                              // ✅ Ahora 'credito' existe perfectamente aquí
+                              context.push('/payment-history/${credito.id}');
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                      
+
+
                   ],
                 );
               },
@@ -284,9 +310,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            /* 🏪 COMENTADO: SECCIÓN VISUAL DE TIENDA
-            // 3. Sección Tienda
-            FadeInUp(
+            // 🏪 COMENTADO: SECCIÓN VISUAL DE TIENDA
+           // 3. Sección Tienda
+          /*  FadeInUp(
               child: Text(
                 'Mi Tienda',
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -310,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   final creditoActual = creditos.first;
 
-                  return ValueListenableBuilder<List<tiendaMostrar_dto>?>(
+                  return ValueListenableBuilder<List<TiendaMostrarAppVentaDTO>?>(
                     valueListenable: _tiendaService.tiendasNotifier,
                     builder: (context, tiendas, _) {
                       if (tiendas == null) {
@@ -318,27 +344,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       if (tiendas.isEmpty) {
-                        return const Text('No hay tienda registrada');
+                        return const Text('No hay fecha de venta registrada');
                       }
 
                       // 🏪 Buscar tienda asociada al crédito
                       final tienda = tiendas.firstWhere(
                         (t) => t.id == creditoActual.tiendaId,
-                        orElse: () => tiendaMostrar_dto(
+                        orElse: () => TiendaMostrarAppVentaDTO(
                           id: 0,
-                          nombreEncargado: 'Tienda no encontrada',
-                          telefono: '',
+                          fechaRegistroStr: 'Fecha de venta no encontrada',
+                          
                           clienteId: 0,
                         ),
                       );
 
                       debugPrint(
-                        '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
+                        '✅ Tienda encontrada: ${tienda.fechaRegistroStr} (ID: ${tienda.id})',
                       );
 
-                      debugPrint(
-                        '✅ Tienda encontrada: ${tienda.nombreEncargado} (ID: ${tienda.id})',
-                      );
+                     
 
                       return Container(
                         padding: const EdgeInsets.all(15),
@@ -373,20 +397,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    tienda.nombreEncargado,
+                                    tienda.fechaRegistroStr,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    tienda.telefono,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 13,
-                                    ),
-                                  ),
+                                 
                                 ],
                               ),
                             ),
@@ -403,9 +420,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-
+*/
             const SizedBox(height: 30),
-            */
+            
 
             // 4. Accesos Rápidos (Opcional pero útil)
             FadeInUp(
@@ -430,7 +447,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Historial de pagos',
                     color: Colors.teal,
                     onTap: () {
-                      context.push('/payment-history');
+
+                      
+                      
                     },
                   ),
                 ],

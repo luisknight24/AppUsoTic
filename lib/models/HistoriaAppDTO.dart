@@ -6,6 +6,7 @@ class HistoriaAppDTO {
   final String estadoCuota; // "Pagada", "Pendiente", "Vencida"
   final int clienteId;
   final int? tiendaId;
+  final int? creditoId;
 
   HistoriaAppDTO({
     required this.id,
@@ -15,6 +16,7 @@ class HistoriaAppDTO {
     required this.estadoCuota,
     required this.clienteId,
     this.tiendaId,
+    this.creditoId,
   });
 
   factory HistoriaAppDTO.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,8 @@ class HistoriaAppDTO {
       estadoCuota: json['estadoCuota'] ?? json['EstadoCuota'] ?? 'Pendiente',
       clienteId: json['clienteId'] ?? json['ClienteId'] ?? 0,
       tiendaId: json['tiendaId'] ?? json['TiendaId'],
+      creditoId: json['creditoId'] ?? json['CreditoId'], // Nuevo cam
+    
     );
   }
 
@@ -37,5 +41,6 @@ class HistoriaAppDTO {
     'EstadoCuota': estadoCuota,
     'ClienteId': clienteId,
     'TiendaId': tiendaId,
+    'CreditoId': creditoId,
   };
 }

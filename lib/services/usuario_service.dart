@@ -4,6 +4,7 @@ import 'package:trabajo1/models/usuario_dto.dart';
 import 'package:trabajo1/models/ClienteMostrarDTO.dart';
 import 'package:trabajo1/models/DetalleCLientePostDTO.dart';
 import 'package:trabajo1/services/creditoMostrarHome.dart';
+import 'package:trabajo1/services/historial_service.dart';
 import '../../../services/tiendaService.dart';
 import '../../../services/notificacion_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,14 +12,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UsuarioService {
-  final String baseUrl = "https://apicredito2-8.onrender.com/api";
- final String baseUrl1 = "https://apicredito2-8.onrender.com/api";
+  final String baseUrl1 = "https://apicredito2-8.onrender.com/api";
+ final String baseUrl = "http://192.168.100.13:7166/api";
  
  final storage = const FlutterSecureStorage();
  ClienteMostrarDTO? _cacheCliente;
 
 final creditoMostrarHome creditoService = creditoMostrarHome();
 final TiendaService tiendaService = TiendaService();
+final HistorialService historialService = HistorialService();
 final NotificacionService notificacionService = NotificacionService();
   Future<dynamic> iniciarSesion(String correo, String clave) async {
     final url = Uri.parse("$baseUrl/Usuario/IniciarSesion");
@@ -250,6 +252,8 @@ Future<void> logout() async {
   // 3️⃣ Limpiar créditos + SignalR
   await creditoService.limpiar();
   await tiendaService.limpiar();
+
+   await historialService.limpiar();
    await notificacionService.limpiar();
   print("✅ Logout completo");
 }

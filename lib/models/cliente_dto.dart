@@ -7,7 +7,7 @@ class ClienteDTO {
   int? usuarioId;
   int detalleClienteID;
   DetalleClienteDTO? detalleCliente;
-  List<TiendaDTO>? tiendas;
+  List<TiendaAppDTO>? tiendas;
   List<CreditoDTO>? creditos;
 
   ClienteDTO({
@@ -30,7 +30,7 @@ class ClienteDTO {
           : null,
       tiendas: json['Tiendas'] != null
           ? (json['Tiendas'] as List)
-              .map((e) => TiendaDTO.fromJson(e))
+              .map((e) => TiendaAppDTO.fromJson(e))
               .toList()
           : null,
       creditos: json['Creditos'] != null
@@ -47,7 +47,7 @@ class ClienteDTO {
         'UsuarioId': usuarioId,
         'DetalleClienteID': detalleClienteID,
         'DetalleCliente': detalleCliente?.toJson(),
-        'Tiendas': tiendas?.map((e) => e.toJson()).toList(),
+        'TiendaApps': tiendas?.map((e) => e.toJson()).toList(),
      
       'Creditos': creditos?.map((e) => e.toJson()).toList(),
       };

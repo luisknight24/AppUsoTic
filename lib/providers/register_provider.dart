@@ -12,13 +12,13 @@ class RegisterProvider extends ChangeNotifier {
 
   final UsuarioDTO _usuarioData = UsuarioDTO(rolId: 2, esActivo: 1); // Rol 2 por defecto
   DetalleClienteDTO? _detalleClienteData;
-  TiendaDTO? _tiendaData;
+  TiendaAppDTO? _tiendaData;
   CreditoDTO? _creditoData;
 
   // Getters para acceder a la info si la necesitamos
   UsuarioDTO get usuario => _usuarioData;
   DetalleClienteDTO? get detalleCliente => _detalleClienteData;
- TiendaDTO? get tienda => _tiendaData;
+  TiendaAppDTO? get tienda => _tiendaData;
 
 CreditoDTO? get credito => _creditoData;
   // 1. Guardar Datos Básicos (UsuarioDTO)
@@ -36,7 +36,7 @@ CreditoDTO? get credito => _creditoData;
   }
 
   // 3. Guardar Tienda (TiendaCrearDTO)
-  void setTienda(TiendaDTO tienda) {
+  void setTienda(TiendaAppDTO tienda) {
     _tiendaData = tienda;
     notifyListeners();
   }

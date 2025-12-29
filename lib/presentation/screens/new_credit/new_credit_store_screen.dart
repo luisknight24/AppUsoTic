@@ -60,7 +60,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
     }
 
     // 2. Crear DTO Tienda (Con los nuevos campos)
-    final tienda = TiendaDTO(
+    final tienda = TiendaAppDTO(
       cedulaEncargado: _cedulaEncargadoCtrl.text,
       estadoDeComision: _estadoComision,
       fechaRegistro: DateTime.now(), // Se asigna al crear
@@ -71,7 +71,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
 
     // 3. LLAMADA AL BACKEND
     // Nota: Asegúrate de que GuardarTienda acepte TiendaDTO ahora
-    //final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
+    final tiendaCreada = await tiendaServicio.GuardarTienda(tienda);
 
     // await Future.delayed(const Duration(seconds: 1)); // Simulación ya no necesaria si el servicio responde
 
@@ -89,7 +89,7 @@ class _NewCreditStoreScreenState extends State<NewCreditStoreScreen> {
       // Avanzar al paso final: CRÉDITO + CALCULADORA
       // Pasamos el ID de la tienda recién creada/validada
       context.push('/new-credit-financial',
-        //extra: tiendaCreada.id,
+        extra: tiendaCreada.id,
       );
     }
   }

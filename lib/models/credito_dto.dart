@@ -132,7 +132,7 @@ class CreditoDTO {
   String? proximaCuotaStr;
   String? estado;
   int clienteId;
-  int? tiendaId;
+  int? tiendaAppId;
   DateTime? fechaCreacion;
 
   // --- NUEVOS CAMPOS ---
@@ -162,7 +162,7 @@ class CreditoDTO {
     this.proximaCuotaStr,
     this.estado,
     this.clienteId = 0,
-    this.tiendaId = 0,
+    this.tiendaAppId = 0,
     this.fechaCreacion,
     this.fotoContratoUrl,
     this.fotoCelularUrl,
@@ -197,7 +197,7 @@ class CreditoDTO {
       proximaCuotaStr: json['proximaCuotaStr'] ?? '',
       estado: json['estado'] ?? '',
       clienteId: json['clienteId'] ?? 0,
-      tiendaId: json['tiendaId'] ?? 0,
+      tiendaAppId: json['tiendaAppId'] ?? 0,
       fechaCreacion: parseDate(json['fechaCreacion']),
       fotoContratoUrl: json['fotoContrato'] ?? '',
       fotoCelularUrl: json['fotoCelularEntregadoUrl'] ?? '',
@@ -228,7 +228,7 @@ class CreditoDTO {
     'Estado': estado ?? '',
     'FechaCreacion': fechaCreacion?.toUtc().toIso8601String(),
     'ClienteId': clienteId,
-    'TiendaId': tiendaId,
+    'TiendaAppId': tiendaAppId,
     'FotoContrato': fotoContratoUrl,
     'FotoCelularEntregadoUrl': fotoCelularUrl,
     'Marca': marca,

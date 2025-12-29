@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/screens/new_credit/client_update_screen.dart';
 import '../../presentation/screens/new_credit/new_credit_financial_screen.dart';
@@ -64,8 +65,15 @@ final appRouter = GoRouter(
       builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
-      path: '/payment-history',
-      builder: (context, state) => const PaymentHistoryScreen(),
+      path: '/payment-history/:creditoId',
+      
+     builder: (context, state) {
+    // Extraemos el id de la URL y lo convertimos a entero
+    final idStr = state.pathParameters['creditoId']!;
+    final id = int.parse(idStr);
+    
+    return PaymentHistoryScreen(creditoId: id); // 👈 Se lo pasamos a la pantalla
+  },
     ),
     GoRoute(
       path: '/notifications',
@@ -92,20 +100,28 @@ final appRouter = GoRouter(
       builder: (context, state) {
         //final clienteId = state.extra as int;
         return NewCreditStoreScreen();
+
+       
       },
     ),
     GoRoute(
-      path: '/new-credit-financial',
-      builder: (context, state) {
-         final tiendaId = state.extra as int;
-        //final Map<String, int> args = state.extra as Map<String, int>;
-        return NewCreditFinancialScreen(
-         // clienteId: args['clienteId']!,
-         // tiendaId: args['tiendaId']!,
-         tiendaId: tiendaId
-        );
-      },
-    ),
+  path: '/new-credit-financial',
+  builder: (context, state) {
+    final tiendaAppId = state.extra as int?;
+
+    if (tiendaAppId == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Error: tiendaAppId no enviado'),
+        ),
+      );
+    }
+
+    return NewCreditFinancialScreen(
+      tiendaAppId: tiendaAppId,
+    );
+  },
+),
     GoRoute(
       path: '/verify-otp',
       builder: (context, state) {

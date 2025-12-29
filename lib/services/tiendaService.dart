@@ -7,12 +7,12 @@ import 'package:trabajo1/models/tienda_crear_dto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class TiendaService {
-  final String baseUrl1= "https://apicredito2-8.onrender.com/api";
-   final String baseUrl = "https://apicredito2-8.onrender.com/api";
+  final String baseUrl1= "http://192.168.100.13:7166/api";
+   final String baseUrl = "http://192.168.100.13:7166/api";
  final storage = const FlutterSecureStorage();
-  List<tiendaMostrar_dto>? _cacheTiendas;
+  List<TiendaMostrarAppVentaDTO>? _cacheTiendas;
 final cargandoNotifier = ValueNotifier<bool>(false);
-final tiendasNotifier = ValueNotifier<List<tiendaMostrar_dto>?>(null);
+final tiendasNotifier = ValueNotifier<List<TiendaMostrarAppVentaDTO>?>(null);
 
 
 
@@ -28,14 +28,14 @@ final tiendasNotifier = ValueNotifier<List<tiendaMostrar_dto>?>(null);
   }
 
 
- Future<List<tiendaMostrar_dto>> getTienda0() async {
+ Future<List<TiendaMostrarAppVentaDTO>> getTienda0() async {
   final token = await storage.read(key: 'jwt_token');
 
   if (token == null) {
     throw Exception("Token no encontrado. Usuario no autenticado.");
   }
 
-  final url = Uri.parse('$baseUrl/Tienda/tiendasApp');
+  final url = Uri.parse('$baseUrl/TiendaApp/tiendasApp');
 
   final response = await http.get(
     url,
@@ -54,7 +54,7 @@ final tiendasNotifier = ValueNotifier<List<tiendaMostrar_dto>?>(null);
 
 
     return decoded
-        .map((item) => tiendaMostrar_dto.fromJson(item))
+        .map((item) => TiendaMostrarAppVentaDTO.fromJson(item))
         .toList();
   } else {
     throw Exception("Error al obtener las tiendas: ${response.statusCode}");
@@ -63,7 +63,7 @@ final tiendasNotifier = ValueNotifier<List<tiendaMostrar_dto>?>(null);
 
 
   
-Future<List<tiendaMostrar_dto>> getTienda({bool forceRefresh = false}) async {
+Future<List<TiendaMostrarAppVentaDTO>> getTiendaSinLogs({bool forceRefresh = false}) async {
   debugPrint("🔵 [getTienda] llamado | forceRefresh=$forceRefresh");
   debugPrint("🔵 [getTienda] cache actual: ${_cacheTiendas?.length}");
   cargandoNotifier.value = true;
@@ -83,7 +83,7 @@ Future<List<tiendaMostrar_dto>> getTienda({bool forceRefresh = false}) async {
 
     // 3️⃣ Petición HTTP
     final response = await http.get(
-      Uri.parse('$baseUrl/Tienda/tiendasApp'),
+      Uri.parse('$baseUrl/TiendaApp/tiendasAppFechaV'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -91,7 +91,7 @@ Future<List<tiendaMostrar_dto>> getTienda({bool forceRefresh = false}) async {
     if (response.statusCode == 200) {
       final List decoded = jsonDecode(response.body);
       _cacheTiendas = decoded
-          .map((e) => tiendaMostrar_dto.fromJson(e))
+          .map((e) => TiendaMostrarAppVentaDTO.fromJson(e))
           .toList();
 
       tiendasNotifier.value = List.unmodifiable(_cacheTiendas!);
@@ -115,20 +115,99 @@ Future<List<tiendaMostrar_dto>> getTienda({bool forceRefresh = false}) async {
 }
 
 
+
+Future<List<TiendaMostrarAppVentaDTO>> getTienda({bool forceRefresh = false}) async {
+  debugPrint("🚀 [getTienda] INICIO | forceRefresh=$forceRefresh");
+  cargandoNotifier.value = true;
+
+  try {
+    // 1️⃣ Cache check
+    if (_cacheTiendas != null && !forceRefresh) {
+      debugPrint("📦 [getTienda] Usando datos de cache");
+      tiendasNotifier.value = List.unmodifiable(_cacheTiendas!);
+      return tiendasNotifier.value!;
+    }
+
+    // 2️⃣ Token check
+    debugPrint("🔑 [getTienda] Leyendo token...");
+    String? token = await storage.read(key: 'jwt_token');
+    if (token == null) {
+      debugPrint("⚠️ [getTienda] Token NULL");
+      throw Exception("Token no encontrado.");
+    }
+
+    // 3️⃣ Request
+    final url = '$baseUrl/TiendaApp/tiendasAppFechaV';
+    debugPrint("🌐 [getTienda] GET a: $url");
+    
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10)); // ⏱️ Timeout para que no cargue eterno
+
+    debugPrint("📡 [getTienda] Status Code: ${response.statusCode}");
+    debugPrint("📄 [getTienda] Body: ${response.body}");
+
+    // 4️⃣ Response Handling
+    if (response.statusCode == 200) {
+      final dynamic decoded = jsonDecode(response.body);
+      
+      if (decoded is List) {
+        debugPrint("✅ [getTienda] Lista recibida con ${decoded.length} elementos");
+        
+        _cacheTiendas = decoded.map((e) {
+          try {
+            return TiendaMostrarAppVentaDTO.fromJson(e);
+          } catch (e) {
+            debugPrint("❌ [getTienda] Error mapeando un elemento: $e");
+            rethrow;
+          }
+        }).toList();
+
+        tiendasNotifier.value = List.unmodifiable(_cacheTiendas!);
+        return tiendasNotifier.value!;
+      } else {
+        debugPrint("❌ [getTienda] El JSON no es una LISTA, es: ${decoded.runtimeType}");
+        throw Exception("Formato de respuesta incorrecto");
+      }
+    }
+
+    if (response.statusCode == 401) {
+      debugPrint("🚫 [getTienda] 401 Unauthorized");
+      await storage.delete(key: 'jwt_token');
+      throw Exception("Sesión expirada.");
+    }
+
+    throw Exception("Error API: ${response.statusCode}");
+
+  } catch (e, stacktrace) {
+    debugPrint('🚨 [getTienda] ERROR CRÍTICO: $e');
+    debugPrint('📚 [getTienda] STACKTRACE: $stacktrace');
+    rethrow;
+  } finally {
+    // IMPORTANTE: Aseguramos que el estado cambie pase lo que pase
+    cargandoNotifier.value = false;
+    debugPrint("🏁 [getTienda] FIN DEL PROCESO");
+  }
+}
+
   // 🧹 Limpiar caché
   void clearCache() {
     _cacheTiendas = null;
   }
 
 
-Future<tiendaMostrar_dto> GuardarTienda(TiendaCrearDTO tienda) async {
+Future<TiendaMostrarAppVentaDTO> GuardarTienda(TiendaAppDTO tienda) async {
   final token = await storage.read(key: 'jwt_token');
 
   if (token == null) {
     throw Exception("Token no encontrado. Usuario no autenticado.");
   }
 
-  final url = Uri.parse('$baseUrl1/Tienda/GuardarTiendaJWT');
+  final url = Uri.parse('$baseUrl1/TiendaApp/GuardarTiendaJWT');
 
   final response = await http.post(
     url,
@@ -139,7 +218,7 @@ Future<tiendaMostrar_dto> GuardarTienda(TiendaCrearDTO tienda) async {
     body: jsonEncode(tienda.toJson()),
   );
 
-  print("Respuesta API Guardar Tienda: ${response.body}");
+  print("Respuesta API Guardar TiendaApp: ${response.body}");
 
   if (response.statusCode == 200) {
     final decoded = jsonDecode(response.body);
@@ -148,7 +227,7 @@ Future<tiendaMostrar_dto> GuardarTienda(TiendaCrearDTO tienda) async {
       // 🔄 Limpiamos caché para que al listar se refresque
       clearCache();
 
-      return tiendaMostrar_dto.fromJson(decoded['value']);
+      return TiendaMostrarAppVentaDTO.fromJson(decoded['value']);
     } else {
       throw Exception(decoded['msg']);
     }
@@ -163,7 +242,7 @@ Future<void> cargarTienda() async {
   
 }
 
-void _actualizarTiendaDesdeEvento(tiendaMostrar_dto nuevaTienda) {
+void _actualizarTiendaDesdeEvento(TiendaMostrarAppVentaDTO nuevaTienda) {
   if (_cacheTiendas == null) return;
 
   final index = _cacheTiendas!.indexWhere((t) => t.id == nuevaTienda.id);
