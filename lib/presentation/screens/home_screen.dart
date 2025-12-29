@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (creditos == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
-              final creditoMostrado = creditos.first;
+             // final creditoMostrado = creditos.first;
                 // 🔥 CASO: NO TIENE CRÉDITOS → PUEDE SOLICITAR
                 if (creditos.isEmpty) {
                   return Column(
