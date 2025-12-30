@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
+import 'package:trabajo1/services/historial_service.dart';
 import '../../models/credito_dto.dart';
  import '../../models/tienda_dto.dart'; // 🏪 COMENTADO: Tienda
 import '../../models/CreditoMostrarDTO.dart';
@@ -23,7 +24,8 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
+// 1. Define una variable booleana fuera del método (en el State o el Servicio)
+bool _estaProcesandoRecarga = false;
 class _HomeScreenState extends State<HomeScreen> {
   // DATOS FICTICIOS PARA MAQUETACIÓN (MOCKS)
   // Luego esto vendrá de tu API con un FutureBuilder o Provider
@@ -31,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<CreditoMostrarDTO>> _futureCreditos;
   late Future<void> _futureCreditos1;
   final NotificacionService _notificacionService = NotificacionService();
-
+  final HistorialService _historialService = HistorialService();
   final TiendaService _tiendaService = TiendaService();
   late Future<List<TiendaMostrarAppVentaDTO>> _Tiendas;
   
@@ -55,10 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   */
   // final creditoServicio = creditoMostrarHome();
-  int _cantidadNotificaciones = 0;
+ // 🔴 AGREGAR ESTE FLAG PARA EVITAR RECARGAS MÚLTIPLES
+  bool _estaProcesandoRecarga = false;
+  DateTime? _ultimaRecarga;
   @override
   void initState() {
-    super.initState();
+   // A. Inicializar Futuros de datos inmediatos (Sin lógica de red pesada aquí)
+   super.initState();
     debugPrint(
       "🔵 [HOME] usando instancia → hash: ${_creditoService.hashCode}",
     );
@@ -83,11 +88,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _notificacionService.connectSignalR();
     // 🔴 CARGAR NOTIFICACIONES AL INICIO
     _cargarNotificaciones();
-
+_historialService.connectSignalR();
     // 3. EJECUTAR RASTREO EN SEGUNDO PLANO (Sin await para no bloquear la UI)
     _locationService.sendCurrentLocation();
   }
-
+  
+ 
   // 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
   Future<void> _cargarNotificaciones() async {
     try {

@@ -6,6 +6,7 @@ class CreditoMostrarDTO {
   final  double montoTotal;
   final double montoPendiente;
   final String proximaCuotaStr;
+  final double entrada;
   final int plazoCuotas;
   final double valorPorCuota;
   final String estado;
@@ -24,6 +25,7 @@ class CreditoMostrarDTO {
     required this.montoTotal,
     required this.montoPendiente,
     required this.proximaCuotaStr,
+    required this.entrada,
     required this.plazoCuotas,
     required this.valorPorCuota,
     required this.estado,
@@ -44,10 +46,18 @@ class CreditoMostrarDTO {
   // 🎯 GETTERS CALCULADOS PARA CUOTAS
   
   /// Calcula cuántas cuotas completas se han pagado
+/// Calcula el dinero que se ha pagado EXCLUSIVAMENTE en cuotas (sin la entrada)
+  double get dineroEnCuotas {
+    final pagado = abonadoTotal - entrada;
+    return pagado > 0 ? pagado : 0.0;
+  }
 
+  /// Calcula cuántas cuotas se han pagado realmente
   int get cuotasPagadas {
     if (valorPorCuota <= 0) return 0;
-    return (abonadoTotal / valorPorCuota).floor();
+    double resultadoProporcional = dineroEnCuotas / valorPorCuota;
+    // Dividimos solo el excedente de la entrada entre el valor de la cuota
+    return (resultadoProporcional + 0.0001).floor();
   }
 
   /// Retorna el formato "2/12"
@@ -55,15 +65,15 @@ class CreditoMostrarDTO {
     return '$cuotasPagadas/$plazoCuotas';
   }
 
-  /// Porcentaje de cuotas completadas (0-100)
+  /// Porcentaje de cuotas completadas (0.0 a 1.0)
   double get porcentajeCuotasCompletadas {
     if (plazoCuotas <= 0) return 0;
     return (cuotasPagadas / plazoCuotas).clamp(0.0, 1.0);
   }
 
-  /// Cuotas restantes por pagar
   int get cuotasRestantes {
-    return plazoCuotas - cuotasPagadas;
+    final restantes = plazoCuotas - cuotasPagadas;
+    return restantes > 0 ? restantes : 0;
   }
 
   
@@ -74,6 +84,7 @@ class CreditoMostrarDTO {
     montoTotal: (json['MontoTotal'] ?? 0).toDouble(),
     montoPendiente: (json["montoPendiente"] ?? 0).toDouble(),
     proximaCuotaStr: json["proximaCuotaStr"] ?? "",
+    entrada: (json["entrada"] ?? 0).toDouble(),
     plazoCuotas: (json["plazoCuotas"] ?? 0).toInt(),
     valorPorCuota: (json["valorPorCuota"] ?? 0).toDouble(),
     estado: json["estado"] ?? "",
@@ -106,6 +117,7 @@ class CreditoMostrarDTO {
       montoTotal: this.montoTotal,
       montoPendiente: montoPendiente ?? this.montoPendiente,
       proximaCuotaStr: proximaCuotaStr ?? this.proximaCuotaStr,
+      entrada: this.entrada,
       plazoCuotas: this.plazoCuotas,
       valorPorCuota: this.valorPorCuota,
       estado: estado ?? this.estado,
