@@ -305,6 +305,8 @@ class CreditSummaryCard extends StatelessWidget {
                                       // 🎯 SOLO AGREGAR ESTO
                   const SizedBox(height: 4),
                   const Text('Cuotas pagadas/Total de cuotas', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    
+                    
                     const SizedBox(height: 2),
                   Text(
                     credito.progresoCuotas, // "2/12"
