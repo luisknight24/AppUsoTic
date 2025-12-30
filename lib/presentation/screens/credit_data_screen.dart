@@ -155,11 +155,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: const Padding(
           padding: EdgeInsets.all(20),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text("Procesando solicitud...", style: TextStyle(fontWeight: FontWeight.bold))
-          ]),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 20), Text("Procesando...", style: TextStyle(fontWeight: FontWeight.bold))]), // Texto ajustado
         ),
       ),
     );
@@ -175,8 +171,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       if (urlContrato == null || urlCelular == null) throw Exception("Error al subir evidencias");
       */
 
-      // 🚨 CAMBIO: ELIMINADO EL Navigator.pop(context) TEMPRANO
-      // if (mounted) Navigator.pop(context); // <--- ESTE SE ELIMINÓ
+      if (mounted) Navigator.pop(context); // Cierra loading de fotos
 
       // 3. CREAR DTO
       final credito = CreditoDTO(
@@ -212,7 +207,6 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       final correoUser = usuarioFinal.correo;
 
       if (correoUser == null || correoUser.isEmpty) {
-        if (mounted) Navigator.pop(context); // Cerrar loading si hay error
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Correo no disponible')));
         return;
@@ -220,9 +214,6 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
 
       final validarCuenta = ValidarCuenta();
       final enviado = await validarCuenta.enviarCodigoCompleto(usuarioFinal);
-
-      // 🚨 CAMBIO: AHORA CERRAMOS EL LOADING AQUÍ, AL FINAL
-      if (mounted) Navigator.pop(context);
 
       setState(() => _isUploading = false);
 
@@ -237,6 +228,66 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       setState(() => _isUploading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     }
+  }
+
+  // ----------------------------------------------------------------------
+  // 🟢 NUEVO: WIDGET CALCULADORA VISUAL
+  // ----------------------------------------------------------------------
+  Widget _buildCalculatorVisualizer(ThemeData theme) {
+    if (_montoFinanciar <= 0) return const SizedBox.shrink();
+
+    final TextStyle valueStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: theme.primaryColor);
+    final TextStyle labelStyle = TextStyle(fontSize: 12, color: Colors.grey[600]);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.calculate, size: 20, color: Colors.grey),
+              const SizedBox(width: 5),
+              Text("Desglose del Cálculo", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+            ],
+          ),
+          const SizedBox(height: 15),
+          // OPERACIÓN 1: RESTA
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(children: [Text("\$${_precioCtrl.text}", style: valueStyle), Text("Precio", style: labelStyle)]),
+              const Icon(Icons.remove_circle_outline, size: 20, color: Colors.redAccent),
+              Column(children: [Text("\$${_entradaCtrl.text.isEmpty ? '0' : _entradaCtrl.text}", style: valueStyle), Text("Entrada", style: labelStyle)]),
+              const Icon(Icons.drag_handle, size: 20, color: Colors.grey), // Igual
+              Column(children: [Text("\$${_montoFinanciar.toStringAsFixed(2)}", style: valueStyle), Text("A Financiar", style: labelStyle)]),
+            ],
+          ),
+          const Divider(height: 25),
+          // OPERACIÓN 2: DIVISIÓN
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(children: [Text("\$${_montoFinanciar.toStringAsFixed(2)}", style: valueStyle), Text("Saldo", style: labelStyle)]),
+              const Icon(Icons.percent, size: 20, color: Colors.orangeAccent), // División visual
+              Column(children: [Text(_cuotasCtrl.text.isEmpty ? '1' : _cuotasCtrl.text, style: valueStyle), Text("Pagos ($_frecuencia)", style: labelStyle)]),
+              const Icon(Icons.arrow_right_alt, size: 30, color: Colors.green), // Flecha resultado
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(color: Colors.green[100], borderRadius: BorderRadius.circular(8)),
+                child: Column(children: [Text("\$${_valorCuota.toStringAsFixed(2)}", style: valueStyle.copyWith(color: Colors.green[800])), Text("Cuota Final", style: labelStyle)]),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -325,7 +376,10 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
               onTap: _seleccionarFecha,
             ),
 
-            const SizedBox(height: 30),
+            // 🟢 AQUÍ INSERTAMOS LA CALCULADORA VISUAL
+            _buildCalculatorVisualizer(theme),
+
+            const SizedBox(height: 10),
 
             /* 📸 SECCIÓN EVIDENCIAS COMENTADA
             // --- SECCIÓN EVIDENCIAS (NUEVO) ---
@@ -341,7 +395,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             ),
             */
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             SizedBox(
                 width: double.infinity,
                 height: 55,

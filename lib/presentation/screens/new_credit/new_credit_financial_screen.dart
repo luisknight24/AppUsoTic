@@ -278,6 +278,67 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     );
   }
 
+  // ----------------------------------------------------------------------
+  // 🟢 NUEVO: WIDGET CALCULADORA VISUAL (Misma lógica, adaptada a variables locales)
+  // ----------------------------------------------------------------------
+  Widget _buildCalculatorVisualizer(ThemeData theme) {
+    if (_totalPagar <= 0) return const SizedBox.shrink();
+
+    final TextStyle valueStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: theme.primaryColor);
+    final TextStyle labelStyle = TextStyle(fontSize: 12, color: Colors.grey[600]);
+    String freqLabel = _frecuenciaSeleccionada ?? 'Cuotas';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.calculate, size: 20, color: Colors.grey),
+              const SizedBox(width: 5),
+              Text("Desglose del Cálculo", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+            ],
+          ),
+          const SizedBox(height: 15),
+          // OPERACIÓN 1: RESTA
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(children: [Text("\$${_montoCtrl.text.isEmpty ? '0' : _montoCtrl.text}", style: valueStyle), Text("Precio", style: labelStyle)]),
+              const Icon(Icons.remove_circle_outline, size: 20, color: Colors.redAccent),
+              Column(children: [Text("\$${_entradaCtrl.text.isEmpty ? '0' : _entradaCtrl.text}", style: valueStyle), Text("Entrada", style: labelStyle)]),
+              const Icon(Icons.drag_handle, size: 20, color: Colors.grey), // Igual
+              Column(children: [Text("\$${_totalPagar.toStringAsFixed(2)}", style: valueStyle), Text("A Financiar", style: labelStyle)]),
+            ],
+          ),
+          const Divider(height: 25),
+          // OPERACIÓN 2: DIVISIÓN
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(children: [Text("\$${_totalPagar.toStringAsFixed(2)}", style: valueStyle), Text("Saldo", style: labelStyle)]),
+              const Icon(Icons.percent, size: 20, color: Colors.orangeAccent), // División visual
+              Column(children: [Text(_plazoCtrl.text.isEmpty ? '1' : _plazoCtrl.text, style: valueStyle), Text("Pagos ($freqLabel)", style: labelStyle)]),
+              const Icon(Icons.arrow_right_alt, size: 30, color: Colors.green), // Flecha resultado
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(color: Colors.green[100], borderRadius: BorderRadius.circular(8)),
+                child: Column(children: [Text("\$${_valorCuota.toStringAsFixed(2)}", style: valueStyle.copyWith(color: Colors.green[800])), Text("Cuota Final", style: labelStyle)]),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -422,6 +483,9 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 ],
               ),
 
+              // 🟢 AQUÍ INSERTAMOS LA CALCULADORA VISUAL
+              _buildCalculatorVisualizer(theme),
+
               const SizedBox(height: 30),
 
               /* 📸 SECCIÓN EVIDENCIAS COMENTADA
@@ -439,7 +503,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
               ),
               */
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 20),
 
               SizedBox(
                 width: double.infinity, height: 55,

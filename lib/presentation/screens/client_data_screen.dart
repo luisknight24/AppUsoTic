@@ -21,13 +21,15 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
   bool _isUploading = false;
   UsuarioRegistroData registroData = UsuarioRegistroData();
   final _formKey = GlobalKey<FormState>();
+
   final _cedulaCtrl = TextEditingController();
   final _nombreCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
+  // NUEVO: Controlador
+  final _propietarioCreditoCtrl = TextEditingController();
 
   // File? _fotoCliente; // 📸 COMENTADO
-  // SE ELIMINARON: _fotoCelular y _fotoContrato de esta pantalla
 
   @override
   void initState() {
@@ -38,7 +40,11 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
 
   @override
   void dispose() {
-    _cedulaCtrl.dispose(); _nombreCtrl.dispose(); _telefonoCtrl.dispose(); _direccionCtrl.dispose();
+    _cedulaCtrl.dispose();
+    _nombreCtrl.dispose();
+    _telefonoCtrl.dispose();
+    _direccionCtrl.dispose();
+    _propietarioCreditoCtrl.dispose(); // NUEVO: Dispose
     super.dispose();
   }
 
@@ -120,8 +126,8 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
-        fotoClienteUrl: null, // urlCliente, // 📸 URL COMENTADA
-        // fotoCelularEntregadoUrl y fotoContrato ya no van aquí
+        propietarioCredito: _propietarioCreditoCtrl.text, // NUEVO: Asignación
+        fotoClienteUrl: null,
       );
 
       // 6. Guardar en Provider
@@ -137,10 +143,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
 
     }
     catch (e) {
-      //if (mounted) Navigator.pop(context);
-      //setState(() => _isUploading = false);
-      //print("Error: $e");
-      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      // Manejo de errores
     }
   }
 
@@ -157,30 +160,29 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
             children: [
               const Text('Información Personal', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 15),
+
+              CustomTextField(
+                  label: 'Propietario del Crédito',
+                  controller: _propietarioCreditoCtrl,
+                  icon: Icons.assignment_ind,
+                  validator: (v) => v!.isEmpty ? 'Requerido' : null
+              ),
+              const SizedBox(height: 15),
+
               CustomTextField(
                 label: 'Número de Cédula', controller: _cedulaCtrl, keyboardType: TextInputType.number,
                 validator: (v) => (v!.isEmpty || v.length != 10) ? 'Debe tener 10 dígitos' : null,
               ),
               const SizedBox(height: 15),
+
               CustomTextField(label: 'Nombres y Apellidos', controller: _nombreCtrl, icon: Icons.person, validator: (v) => v!.isEmpty ? 'Requerido' : null),
               const SizedBox(height: 15),
+
               CustomTextField(label: 'Teléfono', controller: _telefonoCtrl, keyboardType: TextInputType.phone, icon: Icons.phone, validator: (v) => (v!.isEmpty || v.length != 10) ? 'Debe ingresar 10 dígitos' : null),
               const SizedBox(height: 15),
+
               CustomTextField(label: 'Dirección / Sector', controller: _direccionCtrl, icon: Icons.location_on, validator: (v) => v!.isEmpty ? 'Requerido' : null),
-
-              /* 📸 SECCIÓN FOTO COMENTADA
-              const SizedBox(height: 30),
-              const Text('Evidencia de Identidad', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 15),
-
-              // SOLO WIDGET DE FOTO CLIENTE
-              Center(
-                child: SizedBox(
-                  width: 200,
-                  child: PhotoUploadCard(label: 'Foto del cliente', onImageSelected: (f) => _fotoCliente = f),
-                ),
-              ),
-              */
 
               const SizedBox(height: 40),
               SizedBox(width: double.infinity, height: 55, child: ElevatedButton(onPressed: _onNextPressed, child: const Text('SIGUIENTE: DATOS TIENDA'))),

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "https://apicredito2-8.onrender.com/api"; // tu URL
+  static const String baseUrl = "https://apicredito2-ximx.onrender.com/api"; // tu URL
 
   //-------------------------------------------
   // GEThttps://localhost:7166/

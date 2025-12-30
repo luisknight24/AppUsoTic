@@ -9,7 +9,7 @@ import '../models/reset_password_dto.dart';
 
 class Verificacion {
 
-final String baseUrl = "https://apicredito2-8.onrender.com/api";
+final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
 // =============== FORGOT PASSWORD ===============
 Future<ForgotPasswordDTO?> forgotPassword(ForgotPasswordDTO dto) async {
   final url = Uri.parse('$baseUrl/Password/forgot-password');

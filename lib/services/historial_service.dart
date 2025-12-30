@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/HistoriaAppDTO.dart';
 import 'package:signalr_core/signalr_core.dart';
 class HistorialService {
-  final String baseUrl11 = "https://apicredito2-8.onrender.com/api";
-  final String baseUrl1 = "http://192.168.100.13:7166";
-   final String baseUrl = "http://192.168.100.13:7166/api";
+  final String baseUrl11 = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl1 = "https://apicredito2-ximx.onrender.com";
+   final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
    // Tu URL
   final storage = const FlutterSecureStorage();
 // 🔔 NOTIFICADORES UNIFICADOS
