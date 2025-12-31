@@ -133,7 +133,7 @@ _historialService.connectSignalR();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crédito de CellCompany', style: TextStyle(color: Colors.white)),
+        title: const Text('Crédito de CELLCOMPAY', style: TextStyle(color: Colors.white)),
         backgroundColor: theme.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -275,6 +275,55 @@ _historialService.connectSignalR();
                 return Column(
                   children: [
                     CreditSummaryCard(credito: credito),
+
+                    const SizedBox(height: 15),
+
+                    // ✅ BOTÓN DE HISTORIAL INTEGRADO AQUÍ (DONDE 'credito' EXISTE)
+                    // Hacemos que se vea ancho y destacado
+                    FadeInUp(
+                      child: GestureDetector(
+                        onTap: () {
+                          context.push('/payment-history/${credito.id}');
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.teal.shade400, Colors.teal.shade700],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.teal.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.receipt_long, color: Colors.white),
+                              SizedBox(width: 10),
+                              Text(
+                                "Ver Historial de Pagos",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16
+                                ),
+                              ),
+                              Spacer(),
+                              Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(height: 20),
                     _NewCreditRequestCard(
                       isPaid: estaPagado,
@@ -288,11 +337,12 @@ _historialService.connectSignalR();
                     ),
 
 
-FadeInUp(
+Visibility(
+                      visible: false,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                         
+
                           _QuickActionBtn(
                             icon: Icons.receipt_long,
                             label: 'Historial',
@@ -305,9 +355,6 @@ FadeInUp(
                         ],
                       ),
                     ),
-
-                      
-
 
                   ],
                 );
@@ -427,40 +474,32 @@ FadeInUp(
               ),
             ),
 */
-            const SizedBox(height: 30),
-            
-
+            const SizedBox(height: 40),
             // 4. Accesos Rápidos (Opcional pero útil)
             FadeInUp(
               delay: const Duration(milliseconds: 300),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _QuickActionBtn(
+                  Expanded(child: _QuickActionBtn(
                     icon: Icons.web,
                     label: 'Página web',
                     color: Colors.blue,
                     onTap: () {},
+                    ),
                   ),
-                  _QuickActionBtn(
+                  const SizedBox(width: 15),
+                  Expanded(child: _QuickActionBtn(
                     icon: Icons.support_agent,
                     label: 'Soporte',
                     color: Colors.purple,
                     onTap: () {},
-                  ),
-                  _QuickActionBtn(
-                    icon: Icons.receipt_long,
-                    label: 'Historial de pagos',
-                    color: Colors.teal,
-                    onTap: () {
-
-                      
-                      
-                    },
+                    ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),

@@ -268,7 +268,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
             Text('¡Solicitud Exitosa!'),
           ],
         ),
-        content: Text('Tu crédito por \$$monto ha sido registrado correctamente.', textAlign: TextAlign.center),
+        content: Text('Tu crédito ha sido registrado correctamente.', textAlign: TextAlign.center),
         actions: [
           TextButton(
             onPressed: () {
@@ -462,7 +462,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 children: [
                   Expanded(
                     child: CustomTextField(
-                      label: 'Plazo',
+                      label: 'Cuotas',
                       controller: _plazoCtrl,
                       keyboardType: TextInputType.number,
                       icon: Icons.calendar_today,
