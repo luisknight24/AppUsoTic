@@ -248,7 +248,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
   // NUEVO: Controlador
-  final _propietarioCreditoCtrl = TextEditingController();
+  //final _propietarioCreditoCtrl = TextEditingController();
 
   // File? _fotoCliente; // 📸 COMENTADO
   bool _isLoading = false;
@@ -291,7 +291,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
     _nombreCtrl.dispose();
     _telefonoCtrl.dispose();
     _direccionCtrl.dispose();
-    _propietarioCreditoCtrl.dispose(); // NUEVO: Dispose
+    //_propietarioCreditoCtrl.dispose(); // NUEVO: Dispose
     super.dispose();
   }
 
@@ -332,7 +332,7 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
-        propietarioCredito: _propietarioCreditoCtrl.text, // NUEVO: Asignación
+        //propietarioCredito: _propietarioCreditoCtrl.text, // NUEVO: Asignación
         fotoClienteUrl: null,
       );
 
@@ -366,12 +366,12 @@ class _ClientUpdateScreenState extends State<ClientUpdateScreen> {
               const SizedBox(height: 20),
 
               // NUEVO: Campo de texto
-              CustomTextField(
-                label: 'Propietario del Crédito',
-                controller: _propietarioCreditoCtrl,
-                icon: Icons.assignment_ind,
-              ),
-              const SizedBox(height: 15),
+              //CustomTextField(
+              //  label: 'Propietario del Crédito',
+              //  controller: _propietarioCreditoCtrl,
+              //  icon: Icons.assignment_ind,
+              //),
+              //const SizedBox(height: 15),
 
               // --- CAMPOS BLOQUEADOS ---
               CustomTextField(

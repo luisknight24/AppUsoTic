@@ -27,7 +27,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
   // NUEVO: Controlador
-  final _propietarioCreditoCtrl = TextEditingController();
+  //final _propietarioCreditoCtrl = TextEditingController();
 
   // File? _fotoCliente; // 📸 COMENTADO
 
@@ -44,7 +44,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
     _nombreCtrl.dispose();
     _telefonoCtrl.dispose();
     _direccionCtrl.dispose();
-    _propietarioCreditoCtrl.dispose(); // NUEVO: Dispose
+    //_propietarioCreditoCtrl.dispose(); // NUEVO: Dispose
     super.dispose();
   }
 
@@ -126,7 +126,7 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
         nombreApellidos: _nombreCtrl.text,
         telefono: _telefonoCtrl.text,
         direccion: _direccionCtrl.text,
-        propietarioCredito: _propietarioCreditoCtrl.text, // NUEVO: Asignación
+        //propietarioCredito: _propietarioCreditoCtrl.text, // NUEVO: Asignación
         fotoClienteUrl: null,
       );
 
@@ -161,13 +161,13 @@ class _ClientDataScreenState extends State<ClientDataScreen> {
               const Text('Información Personal', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 15),
 
-              CustomTextField(
-                  label: 'Propietario del Crédito',
-                  controller: _propietarioCreditoCtrl,
-                  icon: Icons.assignment_ind,
-                  validator: (v) => v!.isEmpty ? 'Requerido' : null
-              ),
-              const SizedBox(height: 15),
+              //CustomTextField(
+              //    label: 'Propietario del Crédito',
+              //    controller: _propietarioCreditoCtrl,
+              //    icon: Icons.assignment_ind,
+              //    validator: (v) => v!.isEmpty ? 'Requerido' : null
+              //),
+              //const SizedBox(height: 15),
 
               CustomTextField(
                 label: 'Número de Cédula', controller: _cedulaCtrl, keyboardType: TextInputType.number,

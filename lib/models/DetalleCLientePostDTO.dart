@@ -55,7 +55,7 @@ class DetalleClientePostDTO {
   String nombreApellidos;
   String telefono;
   String direccion;
-  String propietarioCredito; // <--- NUEVO CAMPO
+  //String propietarioCredito; // <--- NUEVO CAMPO
   String? fotoClienteUrl;
   String? fotoContrato;
   String? fotoCelularEntregadoUrl;
@@ -66,7 +66,7 @@ class DetalleClientePostDTO {
     required this.nombreApellidos,
     required this.telefono,
     required this.direccion,
-    required this.propietarioCredito, // <--- NUEVO CAMPO
+    //required this.propietarioCredito, // <--- NUEVO CAMPO
     this.fotoClienteUrl,
     this.fotoContrato,
     this.fotoCelularEntregadoUrl,
@@ -80,7 +80,7 @@ class DetalleClientePostDTO {
       nombreApellidos: json['NombreApellidos'] ?? '',
       telefono: json['Telefono'] ?? '',
       direccion: json['Direccion'] ?? '',
-      propietarioCredito: json['PropietarioCredito'] ?? '', // <--- NUEVO CAMPO
+      //propietarioCredito: json['PropietarioCredito'] ?? '', // <--- NUEVO CAMPO
       fotoClienteUrl: json['FotoClienteUrl'],
       fotoContrato: json['FotoContrato'],
       fotoCelularEntregadoUrl: json['FotoCelularEntregadoUrl'],
@@ -94,7 +94,7 @@ class DetalleClientePostDTO {
     'NombreApellidos': nombreApellidos,
     'Telefono': telefono,
     'Direccion': direccion,
-    'PropietarioCredito': propietarioCredito, // <--- NUEVO CAMPO
+    //'PropietarioCredito': propietarioCredito, // <--- NUEVO CAMPO
     'FotoClienteUrl': fotoClienteUrl,
     'FotoContrato': fotoContrato,
     'FotoCelularEntregadoUrl': fotoCelularEntregadoUrl,

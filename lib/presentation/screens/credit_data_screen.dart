@@ -36,6 +36,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   // NUEVO: Controlador IMEI
   final _imeiCtrl = TextEditingController();
 
+  final _propietarioCreditoCtrl = TextEditingController();
+
   String _frecuencia = 'Semanal';
   DateTime _fechaPago = DateTime.now();
 
@@ -71,6 +73,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     _imeiCtrl.dispose(); // Dispose IMEI
+    _propietarioCreditoCtrl.dispose();
     super.dispose();
   }
 
@@ -130,6 +133,12 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     // VALIDAR IMEI SI ES TELÉFONO
     if (_tipoProducto == 'Teléfono' && _imeiCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El IMEI es requerido para teléfonos'), backgroundColor: Colors.red));
+      return;
+    }
+
+    // ✅ VALIDAR PROPIETARIO
+    if (_propietarioCreditoCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El propietario del crédito es requerido'), backgroundColor: Colors.red));
       return;
     }
 
@@ -197,6 +206,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         // NUEVOS CAMPOS PRODUCTO
         tipoProducto: _tipoProducto,
         imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
+        propietarioCredito: _propietarioCreditoCtrl.text,
       );
 
       final registerProvider = context.read<RegisterProvider>();
@@ -317,6 +327,15 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
+            // ✅ CAMPO PROPIETARIO CREDITO (PRIMERA OPCIÓN)
+            CustomTextField(
+              label: 'Propietario del Crédito',
+              controller: _propietarioCreditoCtrl,
+              icon: Icons.person_pin,
+              validator: (v) => v!.isEmpty ? 'Requerido' : null,
+            ),
+            const SizedBox(height: 15),
 
             // --- NUEVO: TIPO PRODUCTO Y MARCA ---
             Row(

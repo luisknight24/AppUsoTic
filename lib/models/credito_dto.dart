@@ -147,6 +147,7 @@ class CreditoDTO {
 
   // --- CAMPOS AGREGADOS
   String tipoProducto;
+  String propietarioCredito;
   String? imei;
 
   CreditoDTO({
@@ -174,6 +175,7 @@ class CreditoDTO {
     // Inicializamos los nuevos campos
     this.tipoProducto = 'Teléfono',
     this.imei,
+    required this.propietarioCredito,
   });
 
   // ------------------- FROM JSON -------------------
@@ -210,6 +212,7 @@ class CreditoDTO {
       // Mapeo nuevos campos
       tipoProducto: json['tipoProducto'] ?? 'Teléfono',
       imei: json['imei'],
+      propietarioCredito: json['PropietarioCredito'] ?? '',
     );
   }
 
@@ -240,5 +243,6 @@ class CreditoDTO {
     // Serialización nuevos campos
     'TipoProducto': tipoProducto,
     'Imei': imei,
+    'PropietarioCredito': propietarioCredito,
   };
 }

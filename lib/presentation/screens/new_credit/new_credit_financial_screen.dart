@@ -34,6 +34,8 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
   // NUEVO: Controlador IMEI
   final _imeiCtrl = TextEditingController();
 
+  final _propietarioCreditoCtrl = TextEditingController();
+
   DateTime _proximaCuota = DateTime.now();
   String? _frecuenciaSeleccionada;
 
@@ -73,6 +75,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     _imeiCtrl.dispose(); // Dispose IMEI
+    _propietarioCreditoCtrl.dispose();
     super.dispose();
   }
   // NUEVO: Variable para el combo de cuotas
@@ -127,6 +130,12 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
     */
 
     setState(() => _isLoading = true);
+
+    // ✅ VALIDAR PROPIETARIO
+    if (_propietarioCreditoCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El propietario del crédito es requerido'), backgroundColor: Colors.red));
+      return;
+    }
 
     // Dialogo de carga
     showDialog(
@@ -187,6 +196,7 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
         // NUEVOS CAMPOS PRODUCTO
         tipoProducto: _tipoProducto,
         imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
+        propietarioCredito: _propietarioCreditoCtrl.text,
       );
       //final CreditoServicio = creditoMostrarHome();
 
@@ -385,6 +395,15 @@ class _NewCreditFinancialScreenState extends State<NewCreditFinancialScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // ✅ CAMPO PROPIETARIO CREDITO (PRIMERA OPCIÓN DE INPUT)
+              CustomTextField(
+                label: 'Propietario del Crédito',
+                controller: _propietarioCreditoCtrl,
+                icon: Icons.person_pin,
+                validator: (v) => v!.isEmpty ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 15),
 
               // --- NUEVO: TIPO PRODUCTO Y MARCA ---
               Row(
