@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final HistorialService _historialService = HistorialService();
   final TiendaService _tiendaService = TiendaService();
   late Future<List<TiendaMostrarAppVentaDTO>> _Tiendas;
-  
+
   //late Future<void> _Tiendas1;
 
   final UsuarioService _clienteService = UsuarioService();
@@ -92,8 +92,8 @@ _historialService.connectSignalR();
     // 3. EJECUTAR RASTREO EN SEGUNDO PLANO (Sin await para no bloquear la UI)
     _locationService.sendCurrentLocation();
   }
-  
- 
+
+
   // 🔴 FUNCIÓN NUEVA: Obtiene el conteo del servicio
   Future<void> _cargarNotificaciones() async {
     try {
@@ -125,7 +125,7 @@ _historialService.connectSignalR();
     _Tiendas = _tiendaService.getTienda();
     await _Tiendas;
   }
-  
+
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +242,7 @@ _historialService.connectSignalR();
 
               builder: (context, creditos, _) {
 
-                
+
                 // Cargando
                 if (creditos == null) {
                   return const Center(child: CircularProgressIndicator());
@@ -278,8 +278,6 @@ _historialService.connectSignalR();
 
                     const SizedBox(height: 15),
 
-                    // ✅ BOTÓN DE HISTORIAL INTEGRADO AQUÍ (DONDE 'credito' EXISTE)
-                    // Hacemos que se vea ancho y destacado
                     FadeInUp(
                       child: GestureDetector(
                         onTap: () {
@@ -406,7 +404,7 @@ Visibility(
                         orElse: () => TiendaMostrarAppVentaDTO(
                           id: 0,
                           fechaRegistroStr: 'Fecha de venta no encontrada',
-                          
+
                           clienteId: 0,
                         ),
                       );
@@ -415,7 +413,7 @@ Visibility(
                         '✅ Tienda encontrada: ${tienda.fechaRegistroStr} (ID: ${tienda.id})',
                       );
 
-                     
+
 
                       return Container(
                         padding: const EdgeInsets.all(15),
@@ -456,7 +454,7 @@ Visibility(
                                       fontSize: 16,
                                     ),
                                   ),
-                                 
+
                                 ],
                               ),
                             ),

@@ -36,6 +36,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   // NUEVO: Controlador IMEI
   final _imeiCtrl = TextEditingController();
 
+  // ✅ NUEVO CONTROLADOR PARA CRÉDITO
   final _propietarioCreditoCtrl = TextEditingController();
 
   String _frecuencia = 'Semanal';
@@ -73,7 +74,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     _imeiCtrl.dispose(); // Dispose IMEI
-    _propietarioCreditoCtrl.dispose();
+    _propietarioCreditoCtrl.dispose(); // ✅ Dispose
     super.dispose();
   }
 
@@ -114,6 +115,12 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       return;
     }
 
+    // ✅ VALIDAR PROPIETARIO
+    if (_propietarioCreditoCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El propietario del crédito es requerido'), backgroundColor: Colors.red));
+      return;
+    }
+
     // --- VALIDACIÓN DE CUOTAS DINÁMICA ---
     final int cuotasIngresadas = int.tryParse(_cuotasCtrl.text) ?? 0;
     int maxCuotas = 24; // Default Mensual
@@ -136,12 +143,6 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       return;
     }
 
-    // ✅ VALIDAR PROPIETARIO
-    if (_propietarioCreditoCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El propietario del crédito es requerido'), backgroundColor: Colors.red));
-      return;
-    }
-
     // ------------------------------------
 
     /* 📸 VALIDACIÓN DE FOTOS COMENTADA
@@ -153,7 +154,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     */
 
     // Guardar crédito en Provider
- // 
+
     setState(() => _isUploading = true);
 
     // Dialogo de Carga
@@ -164,7 +165,15 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: const Padding(
           padding: EdgeInsets.all(20),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 20), Text("Procesando...", style: TextStyle(fontWeight: FontWeight.bold))]), // Texto ajustado
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                // ✅ CAMBIO: TEXTO SOLICITADO
+                Text("Procesando solicitud...", style: TextStyle(fontWeight: FontWeight.bold))
+              ]
+          ),
         ),
       ),
     );
@@ -180,7 +189,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       if (urlContrato == null || urlCelular == null) throw Exception("Error al subir evidencias");
       */
 
-      if (mounted) Navigator.pop(context); // Cierra loading de fotos
+      // ⚠️ ELIMINADO: if (mounted) Navigator.pop(context); (ESTO CERRABA EL DIALOGO MUY RÁPIDO)
 
       // 3. CREAR DTO
       final credito = CreditoDTO(
@@ -206,6 +215,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         // NUEVOS CAMPOS PRODUCTO
         tipoProducto: _tipoProducto,
         imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
+        // ✅ ASIGNACIÓN AL DTO
         propietarioCredito: _propietarioCreditoCtrl.text,
       );
 
@@ -217,13 +227,18 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       final correoUser = usuarioFinal.correo;
 
       if (correoUser == null || correoUser.isEmpty) {
+        if (mounted) Navigator.pop(context); // CERRAR SI HAY ERROR
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Correo no disponible')));
         return;
       }
 
       final validarCuenta = ValidarCuenta();
+      // ESTO TARDARÁ UNOS SEGUNDOS Y EL DIÁLOGO SEGUIRÁ ABIERTO
       final enviado = await validarCuenta.enviarCodigoCompleto(usuarioFinal);
+
+      // ✅ CAMBIO: AHORA SÍ CERRAMOS EL DIALOGO, JUSTO ANTES DE CAMBIAR DE PANTALLA
+      if (mounted) Navigator.pop(context);
 
       setState(() => _isUploading = false);
 
@@ -234,14 +249,14 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
       }
 
     } catch (e) {
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context); // CERRAR SI HAY EXCEPCIÓN
       setState(() => _isUploading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     }
   }
 
   // ----------------------------------------------------------------------
-  // 🟢 NUEVO: WIDGET CALCULADORA VISUAL
+  // 🟢 WIDGET CALCULADORA VISUAL
   // ----------------------------------------------------------------------
   Widget _buildCalculatorVisualizer(ThemeData theme) {
     if (_montoFinanciar <= 0) return const SizedBox.shrink();
@@ -398,7 +413,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             // 🟢 AQUÍ INSERTAMOS LA CALCULADORA VISUAL
             _buildCalculatorVisualizer(theme),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
             /* 📸 SECCIÓN EVIDENCIAS COMENTADA
             // --- SECCIÓN EVIDENCIAS (NUEVO) ---
@@ -414,7 +429,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             ),
             */
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             SizedBox(
                 width: double.infinity,
                 height: 55,
