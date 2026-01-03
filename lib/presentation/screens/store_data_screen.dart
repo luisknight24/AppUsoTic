@@ -24,7 +24,7 @@ class _StoreDataScreenState extends State<StoreDataScreen> {
 
   // Variable para el estado de la comisión
   String _estadoComision = 'Pendiente'; // Valor por defecto
-  final List<String> _opcionesComision = ['Pendiente', 'Recibida'];
+  final List<String> _opcionesComision = ['Pendiente', 'Cobrado'];
 
   bool _isValidating = false; // Para mostrar loading mientras valida
 

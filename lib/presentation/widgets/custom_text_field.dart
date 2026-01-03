@@ -59,6 +59,7 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final bool readOnly; // Nueva propiedad para bloquear edición
+  final String? suffixText;
 
   const CustomTextField({
     super.key,
@@ -69,6 +70,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.readOnly = false, // Por defecto es editable
+    this.suffixText,
   });
 
   @override
@@ -113,6 +115,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           },
         )
             : null,
+
+        suffixText: widget.suffixText, // ✅ Mostrar GB aquí
+        suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
       ),
     );
   }

@@ -49,6 +49,7 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
   // NUEVO: Variable para Tipo de Producto
   String _tipoProducto = 'Teléfono';
   final List<String> _tiposProducto = ['Teléfono', 'Televisor'];
+  final _capacidadCtrl = TextEditingController();
 
   // VARIABLES PARA LAS FOTOS
   // File? _fotoContrato; // 📸 COMENTADO
@@ -74,7 +75,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     _marcaCtrl.dispose();
     _modeloCtrl.dispose();
     _imeiCtrl.dispose(); // Dispose IMEI
-    _propietarioCreditoCtrl.dispose(); // ✅ Dispose
+    _propietarioCreditoCtrl.dispose();
+    _capacidadCtrl.dispose();
     super.dispose();
   }
 
@@ -141,6 +143,15 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
     if (_tipoProducto == 'Teléfono' && _imeiCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El IMEI es requerido para teléfonos'), backgroundColor: Colors.red));
       return;
+    }
+
+    // ✅ VALIDAR CAPACIDAD SI ES TELÉFONO (Opcional, o siempre)
+    if (_capacidadCtrl.text.isNotEmpty) {
+      final cap = int.tryParse(_capacidadCtrl.text);
+      if (cap == null || cap > 1000) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('La capacidad máxima es 1000 GB'), backgroundColor: Colors.red));
+        return;
+      }
     }
 
     // ------------------------------------
@@ -216,7 +227,8 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
         tipoProducto: _tipoProducto,
         imei: (_tipoProducto == 'Teléfono') ? _imeiCtrl.text : null,
         // ✅ ASIGNACIÓN AL DTO
-        propietarioCredito: _propietarioCreditoCtrl.text,
+        nombrePropietario: _propietarioCreditoCtrl.text,
+        capacidad: int.tryParse(_capacidadCtrl.text),
       );
 
       final registerProvider = context.read<RegisterProvider>();
@@ -371,18 +383,37 @@ class _CreditDataScreenState extends State<CreditDataScreen> {
             ),
             const SizedBox(height: 15),
 
-            // --- NUEVO: MODELO Y IMEI (CONDICIONAL) ---
+            // --- FILA 1: MODELO y CAPACIDAD ---
             Row(
               children: [
-                // ✏️ CAMBIO ESTÉTICO: Ícono más general
-                Expanded(child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.devices)),
-                // Mostrar IMEI solo si es Teléfono
-                if (_tipoProducto == 'Teléfono') ...[
-                  const SizedBox(width: 10),
-                  Expanded(child: CustomTextField(label: 'IMEI', controller: _imeiCtrl, icon: Icons.qr_code)),
-                ]
+                Expanded(flex: 2, child: CustomTextField(label: 'Modelo', controller: _modeloCtrl, icon: Icons.devices)),
+
+                const SizedBox(width: 10),
+
+                Expanded(
+                    flex: 1,
+                    child: CustomTextField(
+                      label: 'Cap.',
+                      controller: _capacidadCtrl,
+                      keyboardType: TextInputType.number,
+                      suffixText: 'GB',
+                      validator: (v) {
+                        if (v != null && v.isNotEmpty) {
+                          final n = int.tryParse(v);
+                          if (n == null || n > 1000) return 'Max 1TB';
+                        }
+                        return null;
+                      },
+                    )
+                ),
               ],
             ),
+
+            // --- FILA 2: IMEI (Si es teléfono, abajo) ---
+            if (_tipoProducto == 'Teléfono') ...[
+              const SizedBox(height: 15),
+              CustomTextField(label: 'IMEI', controller: _imeiCtrl, icon: Icons.qr_code),
+            ],
 
             const SizedBox(height: 15),
 
