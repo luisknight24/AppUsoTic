@@ -17,6 +17,8 @@ import 'new_credit_request_screen.dart';
 
 import '../../services/notificacion_service.dart';
 import '../../models/notificacion_dto.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -109,6 +111,13 @@ _historialService.connectSignalR();
     }
   }
 
+  Future<void> _abrirEnlace(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('No se pudo abrir el enlace $url');
+    }
+  }
+
   Future<void> _initCreditoFlow() async {
     await _creditoService.connectSignalR(); // ⏳ esperar conexión
     //_futureCreditos = _creditoService.getCreditos();
@@ -133,7 +142,7 @@ _historialService.connectSignalR();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crédito de CELLCOMPAY', style: TextStyle(color: Colors.white)),
+        title: const Text('Resumen de crédito', style: TextStyle(color: Colors.white)),
         backgroundColor: theme.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -472,31 +481,84 @@ Visibility(
               ),
             ),
 */
-            const SizedBox(height: 40),
+            const SizedBox(height: 15), // Un poco más de espacio arriba
+
+            Center(
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  // Estilo base para toda la frase
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Roboto', // O la fuente que use tu app
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "Crédito financiado por ",
+                      style: TextStyle(
+                        color: Colors.grey[600], // Gris suave para el texto introductorio
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: "CELLCOM",
+                      style: TextStyle(
+                        color: Color(0xFF424242), // Gris oscuro tipo "Plata/Plomo" del logo
+                        fontWeight: FontWeight.w900, // Extra negrita para que parezca logo
+                        letterSpacing: -0.5, // Un toque más compacto como el logo
+                        fontSize: 16,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: "PAY",
+                      style: TextStyle(
+                        color: Color(0xFF4CAF50), // Verde similar al del logo
+                        fontWeight: FontWeight.w900, // Extra negrita
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20), // Espacio inferior de seguridad
+
+            const SizedBox(height: 380),
             // 4. Accesos Rápidos (Opcional pero útil)
             FadeInUp(
               delay: const Duration(milliseconds: 300),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: _QuickActionBtn(
-                    icon: Icons.web,
-                    label: 'Página web',
-                    color: Colors.blue,
-                    onTap: () {},
+                  // BOTÓN PÁGINA WEB
+                  Expanded(
+                    child: _QuickActionBtn(
+                      icon: Icons.language,
+                      label: 'Página web',
+                      color: Colors.blue,
+                      onTap: () {
+                        _abrirEnlace('https://www.cellcompayec.com');
+                      },
                     ),
                   ),
+
                   const SizedBox(width: 15),
-                  Expanded(child: _QuickActionBtn(
-                    icon: Icons.support_agent,
-                    label: 'Soporte',
-                    color: Colors.purple,
-                    onTap: () {},
+
+                  // BOTÓN SOPORTE (WHATSAPP)
+                  Expanded(
+                    child: _QuickActionBtn(
+                      icon: Icons.support_agent,
+                      label: 'Soporte',
+                      color: Colors.green,
+                      onTap: () {
+                        // Enlace directo a WhatsApp
+                        _abrirEnlace('https://wa.me/593982327250');
+                      },
                     ),
                   ),
-                ],
-              ),
-            ),
+                ], // Cierra children
+              ), // Cierra Row
+            ), // Cierra FadeInUp
             const SizedBox(height: 20),
           ],
         ),

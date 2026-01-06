@@ -339,6 +339,7 @@ class CreditSummaryCard extends StatelessWidget {
             ],
           ),
 
+          /*
           const SizedBox(height: 15),
 
           // 3. FILA 2: Abonado a Cuota y Estado Cuota (NUEVO)
@@ -366,7 +367,7 @@ class CreditSummaryCard extends StatelessWidget {
               ),*/
             ],
           ),
-
+        */
           /*
           const SizedBox(height: 15),
           Divider(color: Colors.white.withOpacity(0.2)),

@@ -35,6 +35,9 @@ dependencies:
 
   http: ^1.2.0
 
+  url_launcher: ^6.2.0 # O la versión más reciente
+  font_awesome_flutter: ^10.6.0 # Opcional: Para tener el ícono oficial de WhatsApp
+
   # Diseño y UI
   google_fonts: ^6.1.0       # Tipografías bonitas
   animate_do: ^3.3.2         # Animaciones de entrada (fade in, slide, etc.)
