@@ -268,6 +268,7 @@ import 'package:url_launcher/url_launcher.dart'; // Asegúrate de tener esto
 import '../widgets/custom_text_field.dart';
 import '../../models/login_dto.dart';
 import '../../services/auth_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -556,7 +557,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Botón Soporte
             _HelpButton(
-              icon: Icons.support_agent,
+              icon: FontAwesomeIcons.whatsapp,
               label: 'Soporte',
               color: Colors.green,
               onTap: () => _abrirEnlace('https://wa.me/593982327250'),

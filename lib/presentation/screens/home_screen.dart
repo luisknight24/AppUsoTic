@@ -547,7 +547,7 @@ Visibility(
                   // BOTÓN SOPORTE (WHATSAPP)
                   Expanded(
                     child: _QuickActionBtn(
-                      icon: Icons.support_agent,
+                      icon: FontAwesomeIcons.whatsapp,
                       label: 'Soporte',
                       color: Colors.green,
                       onTap: () {
