@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Uso_Tic</string>
+    <string name="principal">Uso de las TIC</string>
+    <string name="empty_char">_</string>
+    <string name="enter">Ingresar</string>
+    <string name="type_the_letter">Type the letter</string>
+    <string name="hangman">Image with hangman</string>
+
+    <string name="input_illegal_char">Se ha introducido un carácter no autorizado...</string>
+    <string name="input_guessed_char">El carácter especificado ya ha sido adivinado...</string>
+    <string name="input_unsuccessful_guessed">La letra especificada ya ha sido adivinada sin éxito…</string>
+
+    <string name="word">Palabra encontrada</string>
+    <string name="puntaje">Puntaje:</string>
+    <string name="name">Name:</string>
+    <string name="write_your_name">Write your name</string>
+    <string name="main_menu">Menu principal</string>
+    <string name="puntajee">0</string>
+    <string name="save_score">Save score</string>
+    <string name="finishing_picture">Finishing picture</string>
+    <string name="Clear">Clear</string>
+    <string name="Return">Regresar</string>
+</resources>

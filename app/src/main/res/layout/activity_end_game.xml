@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/test"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1C2B48"
+    android:padding="20dp"
+    tools:context=".EndGameActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#1C2B48"
+        android:backgroundTint="#1C2B48">
+
+        <TextView
+            android:id="@+id/labelWord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="16dp"
+            android:text="@string/word"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#DFD7D7"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView6"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="-30dp"
+            android:layout_marginStart="-30dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelWord">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/puntaje"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#E3DEDE"
+                android:textSize="35sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/labelScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/puntaje"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#E6E3E3"
+                android:textSize="35sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="false"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+
+            <Button
+                android:id="@+id/btnMenu"
+                android:layout_width="147dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="0.5"
+                android:layout_gravity="end"
+                android:onClick="closeActivityEndGame"
+                android:text="@string/main_menu" />
+
+            <Button
+                android:id="@+id/continueButton"
+                android:layout_width="175dp"
+                android:layout_height="wrap_content"
+                android:text="Continuar"
+                android:layout_gravity="end"
+                android:layout_marginEnd="-36dp"/>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="0dp"
+            android:layout_height="400dp"
+            android:layout_gravity="top|center_horizontal"
+            android:contentDescription="@string/finishing_picture"
+            android:keepScreenOn="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Palabra solicitada:"
+            android:textColor="#E3DDDD"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@+id/labelWord"
+            app:layout_constraintEnd_toStartOf="@+id/labelWord"
+            app:layout_constraintBottom_toBottomOf="@+id/labelWord"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="-30dp"
+            android:layout_marginEnd="-30dp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
