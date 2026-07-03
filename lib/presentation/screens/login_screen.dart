@@ -571,7 +571,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 // Widget auxiliar para los botones de ayuda (Círculo con icono + Texto)
 class _HelpButton extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
@@ -598,7 +598,9 @@ class _HelpButton extends StatelessWidget {
                 color: color.withOpacity(0.1), // Fondo suave del color del icono
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: icon is IconData
+                  ? Icon(icon as IconData, color: color, size: 24)
+                  : FaIcon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 6),
             Text(

@@ -1,13 +1,13 @@
-/*import 'dart:convert';
+﻿/*import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/HistoriaAppDTO.dart';
 import 'package:signalr_core/signalr_core.dart';
 class HistorialService {
-  final String baseUrl11 = "https://apicredito2-ximx.onrender.com/api";
-  final String baseUrl1 = "https://apicredito2-ximx.onrender.com";
-   final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl11 = "http://10.0.2.2:7166/api";
+  final String baseUrl1 = "http://10.0.2.2:7166";
+   final String baseUrl = "http://10.0.2.2:7166/api";
    // Tu URL
   final storage = const FlutterSecureStorage();
 // 🔔 NOTIFICADORES UNIFICADOS
@@ -238,9 +238,9 @@ import '../models/HistoriaAppDTO.dart';
 import 'package:signalr_core/signalr_core.dart';
 
 class HistorialService {
-  final String baseUrl11 = "https://apicredito2-8.onrender.com/api";
-  final String baseUrl1 = "https://apicredito2-ximx.onrender.com";
-  final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl11 = "http://10.0.2.2:7166/api";
+  final String baseUrl1 = "http://10.0.2.2:7166";
+  final String baseUrl = "http://10.0.2.2:7166/api";
   final storage = const FlutterSecureStorage();
 
   // 🔔 NOTIFICADORES UNIFICADOS

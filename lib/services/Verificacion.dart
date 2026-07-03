@@ -1,4 +1,4 @@
-
+﻿
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/forgot_password_dto.dart';
@@ -9,7 +9,7 @@ import '../models/reset_password_dto.dart';
 
 class Verificacion {
 
-final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+final String baseUrl = "http://10.0.2.2:7166/api";
 // =============== FORGOT PASSWORD ===============
 Future<ForgotPasswordDTO?> forgotPassword(ForgotPasswordDTO dto) async {
   final url = Uri.parse('$baseUrl/Password/forgot-password');
@@ -46,7 +46,7 @@ Future<ForgotPasswordDTO?> forgotPassword(ForgotPasswordDTO dto) async {
   // =============== RESET PASSWORD ===============
 
   Future<String?> resetPassword(ResetPasswordDTO dto) async {
-  final url = Uri.parse('https://apicredito2-8.onrender.com/api/Password/reset-password');
+  final url = Uri.parse('http://10.0.2.2:7166/api/Password/reset-password');
   print('--- RESET PASSWORD ---');
   print('URL: $url');
   print('Datos enviados: ${dto.toJson()}');

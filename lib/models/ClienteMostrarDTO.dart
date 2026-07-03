@@ -20,5 +20,4 @@ class ClienteMostrarDTO {
     usuarioId: (json["usuarioId"] ?? 0).toInt(),
   );
 }
-
 }

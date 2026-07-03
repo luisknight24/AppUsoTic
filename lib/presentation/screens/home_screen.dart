@@ -569,7 +569,7 @@ Visibility(
 
 // Widget auxiliar para botones rápidos
 class _QuickActionBtn extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
@@ -597,7 +597,9 @@ class _QuickActionBtn extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 30),
+            icon is IconData
+                ? Icon(icon as IconData, color: color, size: 30)
+                : FaIcon(icon, color: color, size: 30),
             const SizedBox(height: 8),
             Text(
               label,

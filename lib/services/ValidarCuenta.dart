@@ -1,14 +1,14 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:trabajo1/models/verificar_dto.dart';
 import '../models/enviar_codigo_dto.dart';
 import '../models/usuario_dto.dart';
 
 class ValidarCuenta {
-  final String baseUrl111 = "https://apicredito2-ximx.onrender.com/api";
-   final String baseUrl1 = "https://apicredito2-ximx.onrender.com/api";
-   final String baseUrl11 = "https://apicredito2-ximx.onrender.com/api";
-    final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl111 = "http://10.0.2.2:7166/api";
+   final String baseUrl1 = "http://10.0.2.2:7166/api";
+   final String baseUrl11 = "http://10.0.2.2:7166/api";
+    final String baseUrl = "http://10.0.2.2:7166/api";
 Future<VerificarDTO?> verificarCuenta(VerificarDTO dto) async {
   final url = Uri.parse('$baseUrl/EmailValidation/ValidarCodigo');
   print('--- FORGOT PASSWORD ---');

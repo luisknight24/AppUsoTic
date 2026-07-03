@@ -1,8 +1,8 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "https://apicredito2-ximx.onrender.com/api"; // tu URL
+  static const String baseUrl = "http://10.0.2.2:7166/api"; // tu URL
 
   //-------------------------------------------
   // GEThttps://localhost:7166/

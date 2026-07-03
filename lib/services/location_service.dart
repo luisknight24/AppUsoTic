@@ -1,10 +1,10 @@
-import 'package:geolocator/geolocator.dart';
+﻿import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 class LocationService {
   // Usamos la misma base URL que tus otros servicios
-  final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl = "http://10.0.2.2:7166/api";
   final storage = const FlutterSecureStorage();
 
   /// 1. Método principal: Obtiene la ubicación y la envía al backend

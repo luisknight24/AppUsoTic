@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:trabajo1/models/usuario_dto.dart';
 import 'package:trabajo1/models/ClienteMostrarDTO.dart';
@@ -12,8 +12,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UsuarioService {
-  final String baseUrl1 = "https://apicredito2-ximx.onrender.com/api";
- final String baseUrl = "https://apicredito2-ximx.onrender.com/api";
+  final String baseUrl1 = "http://10.0.2.2:7166/api";
+ final String baseUrl = "http://10.0.2.2:7166/api";
  
  final storage = const FlutterSecureStorage();
  ClienteMostrarDTO? _cacheCliente;
