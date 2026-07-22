@@ -14,6 +14,14 @@ class UsoTicApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tics en la Literatura',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: child!,
+          ),
+        );
+      },
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF030303), // OLED Black
