@@ -1,12 +1,7 @@
-<div align="center">
-  <img src="web/icons/Icon-512.png" width="128" alt="Tics en la literatura logo">
+# Tics en la literatura: Aplicación móvil educativa y gamificada para el repaso interactivo de obras literarias
 
-  # Tics en la literatura
-  *Aplicación móvil educativa y gamificada para el repaso interactivo de obras literarias*
+![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat-square) ![Dart](https://img.shields.io/badge/Dart-%230175C2.svg?style=flat-square)
 
-  [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?logo=Flutter&logoColor=white&style=flat-square)](https://flutter.dev/)
-  [![Dart](https://img.shields.io/badge/Dart-%230175C2.svg?logo=dart&logoColor=white&style=flat-square)](https://dart.dev/)
-</div>
 
 El presente proyecto consiste en una aplicación móvil desarrollada en Flutter, cuyo objetivo principal es fomentar el aprendizaje de la literatura universal e hispanoamericana mediante la integración de recursos interactivos. En este sentido, la plataforma proporciona un entorno gamificado, facilitando a los usuarios el repaso de obras clásicas como La Ilíada, La Odisea, La Eneida, Las cruces sobre el agua y Cien años de soledad.
 
