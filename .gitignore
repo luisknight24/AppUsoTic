@@ -14,14 +14,3 @@
 .cxx
 local.properties
 
-# Configuración de agentes de IA
-.cursorrules
-.cursorignore
-*.prompt
-.agents/
-.gemini/
-.claude/
-.copilot/
-.aider*
-.codeium/
-AGENTS.md
