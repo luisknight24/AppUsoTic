@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Uso_Tic"
+        tools:targetApi="34">
+        <activity
+            android:name=".hangman.SelectCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".hangman.MainGameActivity"
+
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCienAños.MainGameActivityCien"
+
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCruces.MainGameActivityCruces"
+
+            android:exported="false" />
+
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCruces.MenuActivityCruces"
+
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCienAños.MenuActivityCien"
+
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCruces.EndGameActivityCruces"
+
+            android:exported="false" />
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCruces.WelcomeActivityCruces"
+
+            android:exported="false" />
+
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCienAños.WelcomeCienActivity"
+
+            android:exported="false" />
+
+        <activity
+            android:windowSoftInputMode="adjustResize"
+            android:name=".AhorcadoCienAños.EndGameActivtyCien"
+
+            android:exported="false" />
+        <activity
+            android:name=".hangman.WelcomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".hangman.EndGameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".hangman.ShowScoreActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".hangman.MenuActivity"
+            android:exported="false" />
+
+
+
+        <activity
+            android:name=".SopaDeLetrasEneida"
+            android:exported="false" />
+        <activity
+            android:name=".SopaDeLetrasIliada"
+            android:exported="false" />
+        <activity
+            android:name=".EneidaActividad"
+            android:exported="false" />
+        <activity
+            android:name=".CienAniosDeSoledadActividad"
+            android:exported="false" />
+        <activity
+            android:name=".LasCrucesSobreElAguaActividad"
+            android:exported="false" />
+        <activity
+            android:name=".LaOdiseaActividad"
+            android:exported="false" />
+        <activity
+            android:name=".LaIliadaActividad"
+            android:exported="false" />
+        <activity
+            android:name=".EneidaVideo"
+            android:exported="false" />
+        <activity
+            android:name=".CienAniosDeSoledadVideo"
+            android:exported="false" />
+        <activity
+            android:name=".LasCrucesSobreElAguaVideo"
+            android:exported="false" />
+        <activity
+            android:name=".LaOdiseaVideo"
+            android:exported="false" />
+        <activity
+            android:name=".LaIliadaVideo"
+            android:exported="false" />
+        <activity
+            android:name=".Eneida"
+            android:exported="false" />
+        <activity
+            android:name=".CienAniosDeSoledad"
+            android:exported="false" />
+        <activity
+            android:name=".LasCrucesSobreElAgua"
+            android:exported="false" />
+        <activity
+            android:name=".LaOdisea"
+            android:exported="false" />
+        <activity
+            android:name=".LaIliada"
+            android:exported="false" />
+        <activity
+            android:name=".Temas"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+    </application>
+
+</manifest>

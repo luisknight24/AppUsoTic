@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8F8">
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.7"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/iliada" />
+
+    <TextView
+        android:id="@+id/txtTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Actividad sobre La Iliada"
+        android:textSize="50sp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintBottom_toTopOf="@id/btnSopaLetras"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:fontFamily="sans-serif-black"
+        android:textColor="#000000"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/btnSopaLetras"
+        android:layout_width="400px"
+        android:layout_height="wrap_content"
+        android:text="Sopa de letras"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtTitulo"
+        android:layout_marginTop="50dp"
+        android:textColor="#FFFF"
+        android:backgroundTint="#6750A4"/>
+
+    <Button
+        android:id="@+id/btnRegresar"
+        android:layout_width="400px"
+        android:layout_height="wrap_content"
+        android:text="Regresar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSopaLetras"
+        android:layout_marginTop="50dp"
+        android:textColor="#FFFF"
+        android:backgroundTint="#6750A4"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
